@@ -2,6 +2,10 @@
 title: "About me"
 ---
 
-Add some text and a figure describing myself.
+I have journeyed the inner sanctums within the realm of Data Analytics for 8 years. In the spirit of fellowship, I have collaborated with cross-functional teams, ensuring that every stakeholder, from the boardroom to the front lines, understands the story that the data tells. Through trials and tribulations, much like the battles against Sauron’s forces, I have developed a keen eye for detecting anomalies and opportunities, ensuring the integrity and accuracy of the insights provided.
 
-For details, see the exercise instructions. 
+My hope is to glean any insights or experiences you wish to share on this quest.
+
+A peculiar fact about me is that I have no food allergies.
+
+[![Click icon to view Holly from the Shire](IMG_1590_Original.jpg)](https://github.com/holly-milazzo/HollyMilazzo-P2-portfolio/blob/aeae00a859b554c73f77d397768ce91ddd166e7e/IMG_1590_Original.jpg)

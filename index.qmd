@@ -2,14 +2,14 @@
 title: "My website and data analysis portfolio"
 ---
 
-# Hello
+# Greetings, friend! Welcome to my little corner of the web.
 
-### And hello again
+### I am Holly Milazzo, and I'm delighted your journey has led you here.
 
-Welcome to **my website** and _data analysis portfolio._ 
+Please, feel free to explore **my website** and _data analysis portfolio._ 
 
 
-* Please use the `Menu Bar` above to look around.
-* Have fun!
+*  Use the `Menu Bar` above to look around.
+* I've gathered many stories and wonders along my travels.
 
-**Feel free to change this text any way you want 😁!**
+**May your visit be filled with joy and discovery, and may you always find what you seek!**
