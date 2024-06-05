@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Holly Milazz">
+<meta name="author" content="Holly Milazzo">
 <meta name="dcterms.date" content="2024-06-05">
 
 <title>Holly Milazzo Data Analysis Portfolio - Manuscript/Report Template for a Data Analysis Project</title>
@@ -162,7 +162,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Holly Milazz </p>
+             <p>Holly Milazzo </p>
           </div>
   </div>
     
@@ -179,11 +179,12 @@ div.csl-indent {
 
 </header>
 
-<p>#The structure below is one possible setup for a data analysis project (including the course project). For a manuscript, adjust as needed. #You don’t need to have exactly these sections, but the content covering those sections should be addressed.</p>
-<p>#This uses MS Word as output format. <a href="https://quarto.org/docs/output-formats/ms-word.html">See here</a> for more information. You can switch #to other formats, like html or pdf. See <a href="https://quarto.org/">the Quarto documentation</a> for other formats.*/</p>
+<p>The structure below is one possible setup for a data analysis project (including the course project). For a manuscript, adjust as needed. You don’t need to have exactly these sections, but the content covering those sections should be addressed.</p>
+<p>This uses MS Word as output format. <a href="https://quarto.org/docs/output-formats/ms-word.html">See here</a> for more information. You can switch #to other formats, like html or pdf. See <a href="https://quarto.org/">the Quarto documentation</a> for other formats.*/</p>
 <section id="summaryabstract" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Summary/Abstract</h1>
-<p>#<em>Write a summary of your project.</em> This study explores the hypothesis that the type of content (Movie or TV Show) and the country of origin influence the distribution of age ratings assigned to Netflix titles. Utilizing a detailed dataset containing information about Netflix titles, we conduct an extensive analysis involving data cleaning, exploratory data analysis, and statistical testing.</p>
+<p>#<em>Write a summary of your project.</em></p>
+<p>This study explores the hypothesis that the type of content (Movie or TV Show) and the country of origin influence the distribution of age ratings assigned to Netflix titles. Utilizing a detailed dataset containing information about Netflix titles, we conduct an extensive analysis involving data cleaning, exploratory data analysis, and statistical testing.</p>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="introduction" class="level1" data-number="2">
@@ -194,15 +195,28 @@ div.csl-indent {
 <p>The intent of this analysis is to provide insights into how regional production practices and content types align with age rating distributions, offering valuable information for Netflix’s content acquisition and compliance strategies. This research highlights the importance of understanding content rating trends to better cater to diverse audiences and ensure appropriate content delivery. ## Description of data and data source <em>Describe what the data is, what it contains, where it is from, etc. Eventually this might be part of a methods section.</em></p>
 <p>Data is on Netflix Movies and TV Shows from Kaggle.com site. The description says: “The Netflix Titles dataset is a comprehensive compilation of movies and TV shows available on Netflix, covering various aspects such as the title type, director, cast, country of production, release year, rating, duration, genres (listed in), and a brief description. This dataset is instrumental for analyzing trends in Netflix content, understanding genre popularity, and examining the distribution of content across different regions and time periods”</p>
 <p>The dataset contains 8,809 observations and the following 12 variables:</p>
-<p>show_id: A unique identifier for each title. type: The category of the title, which is either ‘Movie’ or ‘TV Show’. title: The name of the movie or TV show. director: The director(s) of the movie or TV show. (Contains null values for some entries, especially TV shows where this information might not be applicable.) cast: The list of main actors/actresses in the title. (Some entries might not have this information.) country: The country or countries where the movie or TV show was produced. date_added: The date the title was added to Netflix. release_year: The year the movie or TV show was originally released. rating: The age rating of the title. duration: The duration of the title, in minutes for movies and seasons for TV shows. listed_in: The genres the title falls under. description: A brief summary of the title.</p>
+<ul>
+<li><p><strong>show_id:</strong> A unique identifier for each title.</p></li>
+<li><p><strong>type:</strong> The category of the title, which is either ‘Movie’ or ‘TV Show’</p></li>
+<li><p><strong>title:</strong> The name of the movie or TV show</p></li>
+<li><p><strong>director:</strong> The director(s) of the movie or TV show (Contains null values for some entries, especially TV shows where this information might not be applicable)</p></li>
+<li><p><strong>cast:</strong> The list of main actors/actresses in the title (Some entries might not have this information.)</p></li>
+<li><p><strong>country:</strong> The country or countries where the movie or TV show was produced.</p></li>
+<li><p><strong>date_added:</strong> The date the title was added to Netflix.</p></li>
+<li><p><strong>release_year:</strong> The year the movie or TV show was originally released.</p></li>
+<li><p><strong>rating:</strong> The age rating of the title.</p></li>
+<li><p><strong>duration:</strong> The duration of the title, in minutes for movies and seasons for TV shows</p></li>
+<li><p><strong>listed_in:</strong> The genres the title falls under.</p></li>
+<li><p><strong>description:</strong> A brief summary of the title.</p></li>
+</ul>
 </section>
 <section id="questionshypotheses-to-be-addressed" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="questionshypotheses-to-be-addressed"><span class="header-section-number">2.2</span> Questions/Hypotheses to be addressed</h2>
 <p><em>State the research questions you plan to answer with this analysis.</em></p>
 <p>“How do the type of content (Movie or TV Show) and the country of origin affect the distribution of age ratings on Netflix titles?”</p>
 <p>This question focuses on understanding the relationship between content type, country of origin, and age ratings, which can provide valuable insights into regional production practices and content rating trends on Netflix</p>
-<p>#To cite other work (important everywhere, but likely happens first in introduction), make sure your references are in the #bibtex file specified in the YAML header above (here <code>dataanalysis_template_references.bib</code>) and have the right bibtex key. #Then you can include like this:</p>
-<p>#Examples of reproducible research projects can for instance be found in <span class="citation" data-cites="mckay2020 mckay2020a">(<a href="#ref-mckay2020" role="doc-biblioref">McKay, Ebell, Billings, et al., 2020</a>; <a href="#ref-mckay2020a" role="doc-biblioref">McKay, Ebell, Dale, Shen, &amp; Handel, 2020</a>)</span></p>
+<p>To cite other work (important everywhere, but likely happens first in introduction), make sure your references are in the #bibtex file specified in the YAML header above (here <code>dataanalysis_template_references.bib</code>) and have the right bibtex key. #Then you can include like this:</p>
+<p>Examples of reproducible research projects can for instance be found in <span class="citation" data-cites="mckay2020 mckay2020a">(<a href="#ref-mckay2020" role="doc-biblioref">McKay, Ebell, Billings, et al., 2020</a>; <a href="#ref-mckay2020a" role="doc-biblioref">McKay, Ebell, Dale, Shen, &amp; Handel, 2020</a>)</span></p>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
