@@ -1,7 +1,7 @@
 ---
 title: "An example cleaning script"
-author: "Andreas Handel"
-date: "2023-01-03"
+author: "Holly Milazzo"
+date: "2024-06-13"
 output: html_document
 ---
 
@@ -17,6 +17,8 @@ Load needed packages. make sure they are installed.
 
 ```{r}
 library(readxl) #for loading Excel files
+library(ggplot2)
+library(dplyr)
 library(dplyr) #for data processing/cleaning
 library(tidyr) #for data processing/cleaning
 library(skimr) #for nice visualization of data 
@@ -37,16 +39,13 @@ data_location <- here::here("starter-analysis-exercise","data","raw-data","examp
 rawdata <- readxl::read_excel(data_location)
 ```
 
-
-# Check data
-
-First we can look at the codebook
-
 ```{r}
-codebook <- readxl::read_excel(data_location, sheet ="Codebook")
-print(codebook)
+head(rawdata)
 ```
 
+
+
+# Check data
 
 Several ways of looking at the data
 
@@ -68,53 +67,38 @@ Does that mean it should be a numeric 60? It somehow doesn't make sense since th
 Since we don't know how to fix this, we might decide to remove the person. This "sixty" entry also turned all Height entries into characters instead of numeric. That conversion to character also means that our summary function isn't very meaningful. So let's fix that first.
 
 ```{r}
-d1 <- rawdata %>% dplyr::filter( Height != "sixty" ) %>% 
-                  dplyr::mutate(Height = as.numeric(Height))
-skimr::skim(d1)
-hist(d1$Height)
+# Handling missing values
+
+# Handling missing values
+rawdata$director[is.na(rawdata$director)] <- "Unknown"
+
+# Converting date formats
+rawdata$date_added <- as.Date(rawdata$date_added, format = "%m/%d/%Y")
+
+# Standardizing categorical variables
+rawdata$type <- as.factor(rawdata$type)
+
+# Convert 'type' back to factor after mutation
+rawdata$type <- as.factor(rawdata$type)
+
+# Display the cleaned data
+head(rawdata)
 ```
-
-Now we see that there is one person with a height of 6. That could be a typo, or someone mistakenly entered their height in feet. Since we unfortunately don't know, we might need to remove this person, which we'll do here.
-
 ```{r}
-d2 <- d1 %>% dplyr::mutate( Height = replace(Height, Height=="6",round(6*30.48,0)) )
-skimr::skim(d2)
-```
+# Remove rows where 'type' is "William Wyler" or NA
+cleaned_data <- rawdata %>%
+  filter(type != "William Wyler" & type != "Unknown" & !is.na(type))
 
-Height values seem ok now.
+head(cleaned_data)
 
-Now let's look at the `Weight` variable. There is a person with weight of 7000, which is impossible, and one person with missing weight.
-To be able to analyze the data, we'll remove those individuals as well.
-
-```{r}
-d3 <- d2 %>%  dplyr::filter(Weight != 7000) %>% tidyr::drop_na()
-skimr::skim(d3)
-```
-
-Now checking the `Gender` variable. Gender should be a categorical/factor variable but is loaded as character. We can fix that with simple base R code to mix things up.
-
-```{r}
-d3$Gender <- as.factor(d3$Gender)  
-skimr::skim(d3)
 ```
 
 
-Now we see that there is another NA, but it's not `NA` from R, instead it was loaded as character and is now considered as a category.
-Well proceed here by removing that individual with that NA entry. Since this keeps an empty category for Gender, I'm also using droplevels() to get rid of it.
-
-```{r}
-d4 <- d3 %>% dplyr::filter( !(Gender %in% c("NA","N")) ) %>% droplevels()
-skimr::skim(d4)
-```
 
 
-All done, data is clean now. 
 
-Let's assign at the end to some final variable, this makes it easier to add further cleaning steps above.
 
-```{r}
-processeddata <- d4
-```
+
 
 
 # Save data 
@@ -127,8 +111,8 @@ See here for some suggestions on how to store your processed data:
 http://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata
 
 ```{r}
-save_data_location <- here::here("starter-analysis-exercise","data","processed-data","processeddata.rds")
-saveRDS(processeddata, file = save_data_location)
+save_data_location <- here::here("starter-analysis-exercise","data","processed-data","cleaned_data.rds")
+saveRDS(cleaned_data, file = save_data_location)
 ```
 
 Note the use of the `here` package and `here` command to specify a path relative to the main project directory, that is the folder that contains the `.Rproj` file. Always use this approach instead of hard-coding file paths that only exist on your computer.

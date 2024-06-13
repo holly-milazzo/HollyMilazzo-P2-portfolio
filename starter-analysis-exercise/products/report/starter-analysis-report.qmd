@@ -32,22 +32,19 @@ library(knitr)
 
 # Summary/Abstract
 
-\#*Write a summary of your project.*
-
 This study explores the hypothesis that the type of content (Movie or TV Show) and the country of origin influence the distribution of age ratings assigned to Netflix titles.
 Utilizing a detailed dataset containing information about Netflix titles, we conduct an extensive analysis involving data cleaning, exploratory data analysis, and statistical testing.
 
 {{< pagebreak >}}
 
-# Introduction
 
 ## General Background Information
 
-*Provide enough background on your topic that others can understand the why and how of your analysis*
 
 The intent of this analysis is to provide insights into how regional production practices and content types align with age rating distributions, offering valuable information for Netflix's content acquisition and compliance strategies.
 This research highlights the importance of understanding content rating trends to better cater to diverse audiences and ensure appropriate content delivery.
-## Description of data and data source *Describe what the data is, what it contains, where it is from, etc. Eventually this might be part of a methods section.*
+
+## Description of data and data source 
 
 Data is on Netflix Movies and TV Shows from Kaggle.com site.
 The description says: "The Netflix Titles dataset is a comprehensive compilation of movies and TV shows available on Netflix, covering various aspects such as the title type, director, cast, country of production, release year, rating, duration, genres (listed in), and a brief description. This dataset is instrumental for analyzing trends in Netflix content, understanding genre popularity, and examining the distribution of content across different regions and time periods"
@@ -101,23 +98,79 @@ I will be using EDA initially and from there possibly branching out into some hy
 
 ## Data aquisition
 
-*As applicable, explain where and how you got the data. If you directly import the data from an online source, you can combine this section with the next.*
 
-The data for Netflix Movies and TV Shows is available on Kaggle.com site
+I imported the data for Netflix Movies and TV Shows which was available on Kaggle.com site. My raw data file is available through file path folders: starter-analysis-exercise > data > raw-data > netflix_titles.xlsx
 
 ## Data import and cleaning
 
+The file path to my code file for cleaning my dataset is: starter-analysis-exercise > code > processing-code > processingfile
+
+First I imported the data...
+```{r}
+# Important
+data_location <- here::here("starter-analysis-exercise","data","raw-data","exampledata.xlsx")
+rawdata <- readxl::read_excel(data_location)
+```
+
+here are some of the initial cleaning techniques...
+```{r}
+# Handling missing values
+
+rawdata$director[is.na(rawdata$director)] <- "Unknown"
+
+# Converting date formats
+rawdata$date_added <- as.Date(rawdata$date_added, format = "%m/%d/%Y")
+
+# Standardizing categorical variables
+
+rawdata$type <- as.factor(rawdata$type)
+
+# Display the cleaned data
+head(rawdata)
+```
+
+
+I also needed to do some clean up when it came to content 'type' as it included unwanted values...
+```{r}
+# Remove rows where 'type' is "William Wyler" or NA
+cleaned_data <- rawdata %>%
+  filter(type != "William Wyler" & type != "Unknown" & !is.na(type))
+
+head(cleaned_data)
+
+```
+
 *Write code that reads in the file and cleans it so it's ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g. as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along.*
+
 
 ## Statistical analysis
 
 *Explain anything related to your statistical analyses.*
+
+```{r}
+summary(rawdata)
+```
+
 
 {{< pagebreak >}}
 
 # Results
 
 ## Exploratory/Descriptive analysis
+
+```{r}
+# Perform the group_by and summarise operations
+type_distribution <- cleaned_data %>%
+  group_by(type) %>%
+  summarise(count = n())
+
+# Plot the distribution of content types
+ggplot(type_distribution, aes(x = type, y = count, fill = type)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Distribution of Content Types - Movies v TV Shows", x = "Type", y = "Count")
+```
+
+
 
 *Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project.*
 
