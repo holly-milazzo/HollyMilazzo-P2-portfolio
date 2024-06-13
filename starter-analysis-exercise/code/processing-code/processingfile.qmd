@@ -17,8 +17,6 @@ Load needed packages. make sure they are installed.
 
 ```{r}
 library(readxl) #for loading Excel files
-library(ggplot2)
-library(dplyr)
 library(dplyr) #for data processing/cleaning
 library(tidyr) #for data processing/cleaning
 library(skimr) #for nice visualization of data 

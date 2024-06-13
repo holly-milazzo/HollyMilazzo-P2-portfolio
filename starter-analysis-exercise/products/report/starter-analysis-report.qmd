@@ -133,8 +133,8 @@ head(rawdata)
 I also needed to do some clean up when it came to content 'type' as it included unwanted values...
 ```{r}
 # Remove rows where 'type' is "William Wyler" or NA
-cleaned_data <- rawdata %>%
-  filter(type != "William Wyler" & type != "Unknown" & !is.na(type))
+cleaned_data <- rawdata[rawdata$type != "William Wyler" & rawdata$type != "Unknown" & !is.na(rawdata$type), ]
+
 
 head(cleaned_data)
 
@@ -160,14 +160,17 @@ summary(rawdata)
 
 ```{r}
 # Perform the group_by and summarise operations
-type_distribution <- cleaned_data %>%
-  group_by(type) %>%
-  summarise(count = n())
+type_distribution <- aggregate(. ~ type, data = cleaned_data, FUN = length)
+names(type_distribution)[2] <- "count"
 
 # Plot the distribution of content types
-ggplot(type_distribution, aes(x = type, y = count, fill = type)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Distribution of Content Types - Movies v TV Shows", x = "Type", y = "Count")
+barplot(height = type_distribution$count,
+        names.arg = type_distribution$type,
+        col = c("purple", "orange"),
+        main = "Distribution of Content Types - Movies v TV Shows",
+        xlab = "Type",
+        ylab = "Count",
+        las = 1) # las = 1 makes axis labels horizontal
 ```
 
 
