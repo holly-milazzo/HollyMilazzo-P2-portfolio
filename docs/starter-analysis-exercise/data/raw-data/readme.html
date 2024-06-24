@@ -59,6 +59,8 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../../styles.css">
 </head>
@@ -131,9 +133,30 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<p>This folder contains a simple made-up data-set in an Excel file.</p>
-<p>It contains the variables <code>Height</code>, <code>Weight</code> and <code>Gender</code> of a few imaginary individuals.</p>
-<p>The dataset purposefully contains some faulty entries that need to be cleaned.</p>
+<p>This project uses data-set on Netflix Movies and TV shows from https://www.kaggle.com/datasets/rahulvyasm/netflix-movies-and-tv-shows.</p>
+<p>I first downloaded the netflix_titles.csv dataset and converted it to an xlsx format by opening a new excel file &gt; Click on Data tab &gt; click From Text/CSV &gt; Popup window will open for you to select the netflix_titles.csv file &gt; Select Import &gt; Click Load &gt; Save file</p>
+<p>This dataset contains 8, 809 records and the following 12 variables:</p>
+<ul>
+<li><p><strong>show_id:</strong> A unique identifier for each title.</p></li>
+<li><p><strong>type:</strong> The category of the title, which is either ‘Movie’ or ‘TV Show’</p></li>
+<li><p><strong>title:</strong> The name of the movie or TV show</p></li>
+<li><p><strong>director:</strong> The director(s) of the movie or TV show (Contains null values for some entries, especially TV shows where this information might not be applicable)</p></li>
+<li><p><strong>cast:</strong> The list of main actors/actresses in the title (Some entries might not have this information.)</p></li>
+<li><p><strong>country:</strong> The country or countries where the movie or TV show was produced.</p></li>
+<li><p><strong>date_added:</strong> The date the title was added to Netflix.</p></li>
+<li><p><strong>release_year:</strong> The year the movie or TV show was originally released.</p></li>
+<li><p><strong>rating:</strong> The age rating of the title.</p></li>
+<li><p><strong>duration:</strong> The duration of the title, in minutes for movies and seasons for TV shows</p></li>
+<li><p><strong>listed_in:</strong> The genres the title falls under.</p></li>
+<li><p><strong>description:</strong> A brief summary of the title.</p></li>
+</ul>
+<p>You will need to load the following packages in R: library(readxl) library(dplyr) library(tidyr) library(skimr)<br>
+library(here)</p>
+<p>Next, to clean the data prior to analysis you will need to…</p>
+<p>Handle the missing values in the ‘director’ variable: &gt;rawdata<span class="math inline">\(director[is.na(rawdata\)</span>director)] &lt;- “Unknown”</p>
+<p>Convert the ‘date_added’ variable into an actual date format: &gt;rawdata<span class="math inline">\(date_added &lt;- as.Date(rawdata\)</span>date_added, format = “%m/%d/%Y”)</p>
+<p>Remove rows where ‘type’ is “William Wyler” or NA and create a ‘cleaned_data’ subset: &gt;cleaned_data &lt;- rawdata %&gt;% &gt;&gt; filter(type != “William Wyler” &amp; type != “Unknown” &amp; !is.na(type))</p>
+<p>and then convert the ‘type’ variable into a factor: &gt;rawdata<span class="math inline">\(type &lt;- as.factor(rawdata\)</span>type)</p>
 <p>Generally, any dataset should contain some meta-data explaining what each variable in the dataset is. (This is often called a <strong>Codebook</strong>.) For this simple example, the codebook is given as a second sheet in the Excel file.</p>
 <p>This raw data-set should generally not be edited by hand. It should instead be loaded and processed/cleaned using code.</p>
 

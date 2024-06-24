@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Holly Milazzo">
-<meta name="dcterms.date" content="2024-06-13">
+<meta name="dcterms.date" content="2024-06-24">
 
 <title>Holly Milazzo Data Analysis Portfolio - Manuscript/Report Template for a Data Analysis Project</title>
 <style>
@@ -203,7 +203,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 13, 2024</p>
+      <p class="date">June 24, 2024</p>
     </div>
   </div>
   
@@ -300,49 +300,35 @@ div.csl-indent {
 <p>I also needed to do some clean up when it came to content ‘type’ as it included unwanted values…</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows where 'type' is "William Wyler" or NA</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cleaned_data <span class="ot">&lt;-</span> rawdata[rawdata<span class="sc">$</span>type <span class="sc">!=</span> <span class="st">"William Wyler"</span> <span class="sc">&amp;</span> rawdata<span class="sc">$</span>type <span class="sc">!=</span> <span class="st">"Unknown"</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(rawdata<span class="sc">$</span>type), ]</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cleaned_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 12
-  show_id type    title    director cast  country date_added release_year rating
-  &lt;chr&gt;   &lt;fct&gt;   &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;date&gt;            &lt;dbl&gt; &lt;chr&gt; 
-1 s1      Movie   Dick Jo… Kirsten… &lt;NA&gt;  United… 2021-09-25         2020 PG-13 
-2 s2      TV Show Blood &amp;… Unknown  Ama … South … 2021-09-24         2021 TV-MA 
-3 s3      TV Show Ganglan… Julien … Sami… &lt;NA&gt;    2021-09-24         2021 TV-MA 
-4 s4      TV Show Jailbir… Unknown  &lt;NA&gt;  &lt;NA&gt;    2021-09-24         2021 TV-MA 
-5 s5      TV Show Kota Fa… Unknown  Mayu… India   2021-09-24         2021 TV-MA 
-6 s6      TV Show Midnigh… Mike Fl… Kate… &lt;NA&gt;    2021-09-24         2021 TV-MA 
-# ℹ 3 more variables: duration &lt;chr&gt;, listed_in &lt;chr&gt;, description &lt;chr&gt;</code></pre>
-</div>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cleaned_data <span class="ot">&lt;-</span> rawdata[rawdata<span class="sc">$</span>type <span class="sc">!=</span> <span class="st">"William Wyler"</span> <span class="sc">&amp;</span> rawdata<span class="sc">$</span>type <span class="sc">!=</span> <span class="st">"Unknown"</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(rawdata<span class="sc">$</span>type), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><em>Write code that reads in the file and cleans it so it’s ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g.&nbsp;as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along.</em></p>
 </section>
 <section id="statistical-analysis" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="statistical-analysis"><span class="header-section-number">2.3</span> Statistical analysis</h2>
 <p><em>Explain anything related to your statistical analyses.</em></p>
+<p>The relevant variables I’ll be using during my statistical analysis to determine how regional production practices and content types align with age rating distributions will be: Country, Type, and Rating.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cleaned_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   show_id                     type         title             director        
- Length:8811        Movie        :6132   Length:8811        Length:8811       
+ Length:8809        Movie        :6132   Length:8809        Length:8809       
  Class :character   TV Show      :2677   Class :character   Class :character  
- Mode  :character   William Wyler:   1   Mode  :character   Mode  :character  
-                    NA's         :   1                                        
+ Mode  :character   William Wyler:   0   Mode  :character   Mode  :character  
+                                                                              
                                                                               
                                                                               
                                                                               
      cast             country            date_added          release_year 
- Length:8811        Length:8811        Min.   :2008-01-01   Min.   :1925  
+ Length:8809        Length:8809        Min.   :2008-01-01   Min.   :1925  
  Class :character   Class :character   1st Qu.:2018-04-06   1st Qu.:2013  
  Mode  :character   Mode  :character   Median :2019-07-02   Median :2017  
                                        Mean   :2019-05-17   Mean   :2014  
                                        3rd Qu.:2020-08-19   3rd Qu.:2019  
                                        Max.   :2024-04-05   Max.   :2024  
-                                       NA's   :13           NA's   :3     
+                                       NA's   :11           NA's   :1     
     rating            duration          listed_in         description       
- Length:8811        Length:8811        Length:8811        Length:8811       
+ Length:8809        Length:8809        Length:8809        Length:8809       
  Class :character   Class :character   Class :character   Class :character  
  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
                                                                             
@@ -359,20 +345,64 @@ div.csl-indent {
 <section id="exploratorydescriptive-analysis" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="exploratorydescriptive-analysis"><span class="header-section-number">3.1</span> Exploratory/Descriptive analysis</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the group_by and summarise operations</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>type_distribution <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(. <span class="sc">~</span> type, <span class="at">data =</span> cleaned_data, <span class="at">FUN =</span> length)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(type_distribution)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"count"</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution of content types</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="at">height =</span> type_distribution<span class="sc">$</span>count,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> type_distribution<span class="sc">$</span>type,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"purple"</span>, <span class="st">"orange"</span>),</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Distribution of Content Types - Movies v TV Shows"</span>,</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Type"</span>,</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Count"</span>,</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">las =</span> <span class="dv">1</span>) <span class="co"># las = 1 makes axis labels horizontal</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the group_by and summarise operations</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>type_distribution <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(. <span class="sc">~</span> type, <span class="at">data =</span> cleaned_data, <span class="at">FUN =</span> length)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(type_distribution)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"count"</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution of content types</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="at">height =</span> type_distribution<span class="sc">$</span>count,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> type_distribution<span class="sc">$</span>type,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"purple"</span>, <span class="st">"orange"</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Distribution of Content Types - Movies v TV Shows"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Type"</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Count"</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">las =</span> <span class="dv">1</span>) <span class="co"># las = 1 makes axis labels horizontal</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We see from the distribution that it appears movies are being streamed substantially more than TV shows, but to get a better sense of this let’s represent it as a percentage instead</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>type_distribution <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(. <span class="sc">~</span> type, <span class="at">data =</span> cleaned_data, <span class="at">FUN =</span> length)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(type_distribution)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"count"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>type_distribution<span class="sc">$</span>percentage <span class="ot">&lt;-</span> <span class="fu">round</span>((type_distribution<span class="sc">$</span>count <span class="sc">/</span> <span class="fu">sum</span>(type_distribution<span class="sc">$</span>count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> <span class="fu">paste</span>(type_distribution<span class="sc">$</span>type, type_distribution<span class="sc">$</span>percentage, <span class="st">"%"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">pie</span>(type_distribution<span class="sc">$</span>count,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> labels,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"purple"</span>, <span class="st">"orange"</span>),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">"Percentage of Movies vs TV Shows"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now I’d like to see which countries the Movie/TV show content originate from</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>country_counts <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">sort</span>(<span class="fu">table</span>(cleaned_data<span class="sc">$</span>country), <span class="at">decreasing =</span> <span class="cn">TRUE</span>), <span class="dv">10</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to data frame for ggplot</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>country_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">country =</span> <span class="fu">names</span>(country_counts),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">count =</span> <span class="fu">as.numeric</span>(country_counts)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the bar chart</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(country_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(country, <span class="sc">-</span>count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> count), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Country"</span>, <span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">title =</span> <span class="st">"Top 10 Countries (Top 3 Highlighted)"</span>) <span class="sc">+</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data =</span> country_df[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, ], <span class="fu">aes</span>(<span class="at">x =</span> country, <span class="at">y =</span> count), <span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"red"</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p><em>Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project.</em></p>
