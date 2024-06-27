@@ -1,0 +1,94 @@
+---
+title: "Data Exercise - Assignment #4"
+author: "Holly Milazzo - LNJ140"
+---
+
+For this assigment, I am choosing Option 1: Using a complex data (in this case a Text dataset)
+
+
+First, I need to install the tidytext package and in this case I'll be using a text dataset from  the janeaustenr package available in R that contains the 6 different novels written by Jane Austen. I'm using the example available in the Complex Data Types unit.
+
+```{r}
+library(tidytext)
+library(janeaustenr)
+```
+I will also need the dplyr package for some of the functions it offers (such as pipes) in making data manipulation easier
+
+```{r}
+library(dplyr)
+```
+
+
+```{r}
+head(austen_books)
+```
+
+I'm going to create two new columns for 'book' and 'line' from the dataset by first grouping the data by book,and using 'mutate' to transform the grouped books into a line number within each book. Basically numbering the lines within the books. We can then ungroup the dataset as we have our lines:
+
+```{r}
+original_books <- austen_books() %>%
+  group_by(book) %>%
+  mutate(line = row_number()) %>%
+  ungroup()
+
+original_books
+```
+
+Using the 'unnest_tokens' function from tidytext we can convert the text into "tokens" or individual words:
+
+```{r}
+tidy_books <- original_books %>%
+  unnest_tokens(word, text)
+
+tidy_books
+```
+
+
+I use the 'anti_join(get_stopwords())' functions together next to remove "stop words" from the dataset such as "the", "in", and "is".
+For this you will have to use the "stopwords" package to identify those words.
+```{r}
+library(stopwords)
+```
+
+
+```{r}
+tidy_books <- tidy_books %>%
+  anti_join(get_stopwords(), by = "word")
+```
+
+
+Now to perform some exploratory analysis with the data set. 
+
+let's install 'ggplot2' for our visualizations
+```{r}
+library(ggplot2)
+```
+
+In this resource example, we can assign sentiment (positive, negative, and neutral) to the words used within the novels to perhaps get an overall idea of the emotion/feelings/theme within the novels - for this we need the 'bing' package for lexicon/sentiment:
+
+```{r}
+library(tidyr)
+get_sentiments("bing")
+```
+
+Applying the lexicon/sentiment dataset to the text dataset using an inner join and creating new columns to represent the count of negative/positive and sentiment.
+
+```{r}
+janeaustensentiment <- tidy_books %>%
+  inner_join(get_sentiments("bing"), by = "word", relationship = "many-to-many") %>% 
+  count(book, index = line %/% 80, sentiment) %>% 
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+janeaustensentiment
+```
+
+We can now graph our sentiment count results using ggplot:
+
+```{r}
+ggplot(janeaustensentiment, aes(index, sentiment, fill = book)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(vars(book), ncol = 2, scales = "free_x")
+```
+
+
