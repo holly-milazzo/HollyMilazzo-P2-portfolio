@@ -3,9 +3,9 @@ title: "Presentation Exercise"
 author: "Holly Milazzo"
 ---
 
-In this exercise, I recreated a series of pie charts which were originally presented in an exploratory data analysis (EDA) on Netflix movies and TV shows and used Python to develop. The original visualizations, found here [Link](https://www.kaggle.com/code/lp2595/netflix-movies-and-tv-shows-eda#WOW!-Mostly,-Contents-from-Japan-and-South-Korea-are-TV-Shows), focused on analyzing content distribution from various countries, emphasizing a predominant presence of TV shows in Japan and South Korea. 
 
-Instead of focusing solely on these regions, I chose to highlight the top 10 countries in the Netflix dataset. By leveraging R's ggplot2 library, I replicated these charts to explore similar insights, highlighting the proportional distribution of movies versus TV shows across different countries within the dataset. I also use ChatGPT for assistance on converting Python code to R.
+
+In this exercise, I recreated the bar graph that illustrates the share of political donations from team owners in six major sports leagues (NFL, NBA, WNBA, NHL, MLB, and NASCAR) to the Republican and Democratic parties over three election years: 2016, 2018, and 2020 from the FiveThirtyEight page here [Link](https://fivethirtyeight.com/features/inside-the-political-donation-history-of-wealthy-sports-owners/). The graph shows a significant majority of donations going to the Republican party in all three years. The annotation highlights that Giants owner Charles Johnson's contributions constitute a substantial portion of the total Republican donations, underscoring the influence of individual donors in political contributions.
 
 
 ```{r, echo=FALSE, message=FALSE}
@@ -14,119 +14,124 @@ library(here)
 library(knitr)
 library(dplyr)
 library(ggplot2)
+library(readr)
+library(tidyr)
 ```
 
 
-```{r, echo=FALSE, message=FALSE}
+```{r}
 # Important
-data_location <- here::here("starter-analysis-exercise","data","raw-data","exampledata.xlsx")
-rawdata <- readxl::read_excel(data_location)
+# Define the data location
+data_location_sports <- here::here("presentation-exercise", "sports-political-donations.csv")
+
+# Read the CSV data
+rawdata_sports <- read_csv(data_location_sports, col_names = FALSE)
+
+# Preview the data
+head(rawdata_sports)
 ```
 
 
-```{r, echo=FALSE, message=FALSE}
-# Handling missing values
+```{r, message=FALSE}
 
-rawdata$director[is.na(rawdata$director)] <- "Unknown"
+# Assign proper column names
+colnames(rawdata_sports) <- c("Owner", "Team", "League", "Recipient", "Amount", "Election_Year", "Party")
 
-# Fill missing 'country' values with the mode (most frequent value)
-mode_country <- names(sort(table(rawdata$country), decreasing = TRUE))[1]
-rawdata$country[is.na(rawdata$country)] <- mode_country
+# Clean up the Amount column (remove '$' and convert to numeric)
+rawdata_sports$Amount <- as.numeric(gsub("[\\$,]", "", rawdata_sports$Amount))
 
-# Converting date formats
-rawdata$date_added <- as.Date(rawdata$date_added, format = "%m/%d/%Y")
+# Filter out rows where Party is not 'Democrat' or 'Republican'
+rawdata_sports <- rawdata_sports[rawdata_sports$Party %in% c("Democrat", "Republican"), ]
 
-# Standardizing categorical variables
+# Summarize data to calculate total donations by Party and Year
+donations_summary <- aggregate(rawdata_sports$Amount, 
+                               by = list(Election_Year = rawdata_sports$Election_Year, Party = rawdata_sports$Party), 
+                               FUN = sum)
+colnames(donations_summary)[3] <- "Total_Amount"
 
-rawdata$type <- as.factor(rawdata$type)
+# Convert Party to factor and specify order (Democrat first for better visualization)
+donations_summary$Party <- factor(donations_summary$Party, levels = c("Democrat", "Republican"))
+
+# Calculate the proportion of total donations by year
+total_by_year <- aggregate(donations_summary$Total_Amount, 
+                           by = list(Election_Year = donations_summary$Election_Year), 
+                           FUN = sum)
+colnames(total_by_year)[2] <- "Yearly_Total"
+
+donations_summary <- merge(donations_summary, total_by_year, by = "Election_Year")
+donations_summary$Prop_Amount <- donations_summary$Total_Amount / donations_summary$Yearly_Total
+
+# Plot the data
+ggplot(donations_summary, aes(x = as.factor(Election_Year), y = Prop_Amount, fill = Party)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c("Democrat" = "blue", "Republican" = "red")) +
+  labs(
+    title = "Team owners give largely to the GOP",
+    subtitle = "Share of donations from team owners in six leagues, per year and party",
+    x = "",
+    y = "Share of Donations",
+    fill = "Donations to"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.background = element_rect(fill = "gray90"),
+    plot.background = element_rect(fill = "gray90"),
+    axis.text.x = element_text(angle = 0, hjust = 0.5),
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  ) +
+  annotate("text", x = 1.5, y = 1.05, label = "Giants owner Charles Johnson’s total contributions make up 32.1% of all Republican contributions.", size = 3, hjust = 0.3, vjust = 0)
+
 
 ```
 
+Table: Partisan Contributions by League
 
-```{r, echo=FALSE, message=FALSE}
-# Remove rows where 'type' is "William Wyler" or NA
-cleaned_data <- rawdata[rawdata$type != "William Wyler" & rawdata$type != "Unknown" & !is.na(rawdata$type), ]
+The table breaks down the total political contributions from owners and commissioners in six sports leagues (MLB, NBA, NHL, NFL, WNBA, and NASCAR) to the Republican and Democratic parties from 2016 to 2020. It reveals that MLB owners have donated the most overall, with significant amounts going to both parties, but predominantly to Republicans. The table provides a clear comparison of partisan contributions across different leagues, highlighting the disparity in political support within the sports industry.
 
-```
-
-This code snippet analyzes the cleaned_data to count occurrences based on country and type. It then groups this data by country, calculates the percentage of each type within each country group, and stores this information in percentage_data. Finally, it ungroups the data to return it to a standard format, allowing for further exploration and analysis of the percentage distribution of type across different countries.
+Both visuals emphasize the substantial financial support sports team owners provide to political parties, predominantly favoring the Republican party, and the considerable influence of a few key donors.
 
 ```{r}
-# Count occurrences of each country and type
-count_data <- count(cleaned_data, country, type)
-
-# Group by country
-grouped_data <- group_by(count_data, country)
-
-# Calculate percentage within each group
-grouped_data <- mutate(grouped_data, percentage = n / sum(n) * 100)
-
-# Ungroup the data
-percentage_data <- ungroup(grouped_data)
-
-# Show percentage_data
-percentage_data
-```
-
-
-```{r}
-# Calculate total count of each country
-country_totals <- aggregate(percentage_data$n, by = list(percentage_data$country), FUN = sum)
-
-# Select top 10 countries by total count
-top_10_countries <- country_totals[order(country_totals$x, decreasing = TRUE), ]$Group.1[1:10]
-
-# Subset data for top 10 countries only
-top_10_data <- subset(percentage_data, country %in% top_10_countries)
-
-# Create pie chart for top 10 countries with improved readability
+# Load necessary libraries
 library(ggplot2)
+library(ggtext)
 
-# Plotting the pie chart
-pie_plot <- ggplot(top_10_data, aes(x = "", y = n, fill = type)) +
-  geom_bar(stat = "identity", width = 1, color = "white") +
-  coord_polar(theta = "y") +
-  facet_wrap(~ country, scales = "free_y") +
-  geom_text(aes(label = paste0(round(percentage, 2), "%")),
-            position = position_stack(vjust = 0.5), color = "white", size = 4, family = "sans") +  # Adjust text size, color, and font family
+# Define the data for the table
+data_table <- data.frame(
+  League = c("MLB", "NBA", "NHL", "NFL", "WNBA", "NASCAR"),
+  To_Republicans = c("$15,181,761", "$8,372,300", "$7,087,116", "$5,032,470", "$1,338,459", "$576,110"),
+  To_Democrats = c("$5,184,604", "$2,641,487", "$1,726,733", "$873,500", "$1,634,153", "$93,983"),
+  Total = c("$20,366,365", "$11,013,787", "$8,813,849", "$5,905,970", "$2,972,612", "$670,093")
+)
+
+# Create a base plot
+p <- ggplot(data_table, aes(x = 1, y = League)) +
+  geom_text(aes(label = To_Republicans, x = 2), hjust = 0, color = "red") +
+  geom_text(aes(label = To_Democrats, x = 3), hjust = 0, color = "blue") +
+  geom_text(aes(label = Total, x = 4), hjust = 0) +
+  geom_text(aes(label = League, x = 0), hjust = 0, fontface = "bold") +
+  scale_x_continuous(limits = c(-0.5, 4.5), breaks = 0:4, labels = c("LEAGUE", "TO REPUBLICANS", "TO DEMOCRATS", "TOTAL", "")) +
   theme_void() +
-  scale_fill_manual(values = c("#5E81AC", "#E19C24"), labels = c("Movie", "TV Show")) +  # Adjust colors and labels
-  theme(legend.position = "bottom", legend.text = element_text(size = 10, family = "sans"), plot.title = element_text(hjust = 0.5, size = 14, family = "sans")) +  # Adjust legend and title text
-  labs(fill = "Type", title = "Percentage of Movies vs TV Shows in Top 10 Countries")  # Adjust title
+  theme(
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    plot.caption = element_text(size = 8, hjust = 0.5),
+    axis.text.x = element_text(size = 10, face = "bold"),
+    plot.background = element_rect(fill = "white", color = "white"),
+    panel.background = element_rect(fill = "white", color = "white")
+  ) +
+  labs(
+    title = "MLB owners have donated the most",
+    subtitle = "Specifically partisan contributions from owners and commissioners in the NFL, NBA, WNBA, NHL, MLB and NASCAR, by party, 2016-20",
+    caption = "SOURCE: FEDERAL ELECTION COMMISSION, OPENSECRETS"
+  )
 
-# Show the plot
-print(pie_plot)
+# Print the plot
+print(p)
+
+
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -28,6 +28,8 @@ See [the Quarto documentation](https://quarto.org/) for other formats.\*/
 # load a few R packages
 library(here)
 library(knitr)
+library(dplyr)
+library(ggplot2)
 ```
 
 # Summary/Abstract
@@ -117,6 +119,10 @@ here are some of the initial cleaning techniques...
 # Handling missing values
 
 rawdata$director[is.na(rawdata$director)] <- "Unknown"
+
+# Fill missing 'country' values with the mode (most frequent value)
+mode_country <- names(sort(table(rawdata$country), decreasing = TRUE))[1]
+rawdata$country[is.na(rawdata$country)] <- mode_country
 
 # Converting date formats
 rawdata$date_added <- as.Date(rawdata$date_added, format = "%m/%d/%Y")
@@ -260,6 +266,64 @@ ggplot(cleaned_data, aes(x = release_year)) +
        x = "Release Year", y = "Count") +
   theme_minimal()
 ```
+
+
+
+```{r}
+# Count occurrences of each country and type
+count_data <- count(cleaned_data, country, type)
+
+# Group by country
+grouped_data <- group_by(count_data, country)
+
+# Calculate percentage within each group
+grouped_data <- mutate(grouped_data, percentage = n / sum(n) * 100)
+
+# Ungroup the data
+percentage_data <- ungroup(grouped_data)
+
+# Show percentage_data
+percentage_data
+```
+
+
+
+```{r}
+# Calculate total count of each country
+country_totals <- aggregate(percentage_data$n, by = list(percentage_data$country), FUN = sum)
+
+# Select top 10 countries by total count
+top_10_countries <- country_totals[order(country_totals$x, decreasing = TRUE), ]$Group.1[1:10]
+
+# Subset data for top 10 countries only
+top_10_data <- subset(percentage_data, country %in% top_10_countries)
+
+# Create pie chart for top 10 countries with improved readability
+library(ggplot2)
+
+# Plotting the pie chart
+pie_plot <- ggplot(top_10_data, aes(x = "", y = n, fill = type)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar(theta = "y") +
+  facet_wrap(~ country, scales = "free_y") +
+  geom_text(aes(label = paste0(round(percentage, 2), "%")),
+            position = position_stack(vjust = 0.5), color = "white", size = 4, family = "sans") +  # Adjust text size, color, and font family
+  theme_void() +
+  scale_fill_manual(values = c("#5E81AC", "#E19C24"), labels = c("Movie", "TV Show")) +  # Adjust colors and labels
+  theme(legend.position = "bottom", legend.text = element_text(size = 10, family = "sans"), plot.title = element_text(hjust = 0.5, size = 14, family = "sans")) +  # Adjust legend and title text
+  labs(fill = "Type", title = "Percentage of Movies vs TV Shows in Top 10 Countries")  # Adjust title
+
+# Show the plot
+print(pie_plot)
+```
+
+
+
+
+
+
+
+
 
 
 
