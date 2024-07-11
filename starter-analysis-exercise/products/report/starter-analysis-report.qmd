@@ -213,6 +213,64 @@ print(p)
 
 
 
+```{r}
+# Plot the distribution of ratings
+ggplot(cleaned_data, aes(x = rating)) +
+  geom_bar(fill = "#4E79A7") +
+  labs(title = "Distribution of Ratings",
+       x = "Rating", y = "Count") +
+  theme_minimal()
+```
+
+
+
+```{r}
+# Split the 'listed_in' column into individual genres
+genres <- unlist(strsplit(cleaned_data$listed_in, ", "))
+genre_table <- as.data.frame(table(genres))
+
+# Arrange by frequency in descending order and select top 10
+genre_counts <- genre_table[order(-genre_table$Freq), ]
+genre_counts <- genre_counts[1:10, ]
+
+# Plot the top 10 genres
+library(ggplot2)
+
+# Plotting the bar chart
+ggplot(data = genre_counts, aes(x = reorder(genres, Freq), y = Freq)) +
+  geom_bar(stat = "identity", fill = "#4E79A7") +
+  geom_text(aes(label = Freq), 
+            position = position_stack(vjust = 0.5), 
+            color = "white", 
+            size = 4, 
+            family = "sans") +  # Adjust position and styling of labels
+  labs(title = "Top 10 Genres",
+       x = "Genre", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 10, family = "sans")) +  # Rotate x-axis labels
+  theme_minimal()
+```
+
+
+
+```{r}
+# Plot the count of titles by release year
+ggplot(cleaned_data, aes(x = release_year)) +
+  geom_histogram(binwidth = 1, fill = "#4E79A7", color = "white") +
+  labs(title = "Count of Titles by Release Year",
+       x = "Release Year", y = "Count") +
+  theme_minimal()
+```
+
+
+
+
+
+
+
+
+
+
+
 *Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project.*
 
 @tbl-summarytable shows a summary of the data.

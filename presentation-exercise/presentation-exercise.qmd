@@ -1,5 +1,133 @@
 ---
 title: "Presentation Exercise"
+author: "Holly Milazzo"
 ---
 
-Placeholder file for the future data/results presentation exercise.
+In this exercise, I recreated a series of pie charts which were originally presented in an exploratory data analysis (EDA) on Netflix movies and TV shows and used Python to develop. The original visualizations, found here [Link](https://www.kaggle.com/code/lp2595/netflix-movies-and-tv-shows-eda#WOW!-Mostly,-Contents-from-Japan-and-South-Korea-are-TV-Shows), focused on analyzing content distribution from various countries, emphasizing a predominant presence of TV shows in Japan and South Korea. 
+
+Instead of focusing solely on these regions, I chose to highlight the top 10 countries in the Netflix dataset. By leveraging R's ggplot2 library, I replicated these charts to explore similar insights, highlighting the proportional distribution of movies versus TV shows across different countries within the dataset. I also use ChatGPT for assistance on converting Python code to R.
+
+
+```{r, echo=FALSE, message=FALSE}
+# load a few R packages
+library(here)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+# Important
+data_location <- here::here("starter-analysis-exercise","data","raw-data","exampledata.xlsx")
+rawdata <- readxl::read_excel(data_location)
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+# Handling missing values
+
+rawdata$director[is.na(rawdata$director)] <- "Unknown"
+
+# Fill missing 'country' values with the mode (most frequent value)
+mode_country <- names(sort(table(rawdata$country), decreasing = TRUE))[1]
+rawdata$country[is.na(rawdata$country)] <- mode_country
+
+# Converting date formats
+rawdata$date_added <- as.Date(rawdata$date_added, format = "%m/%d/%Y")
+
+# Standardizing categorical variables
+
+rawdata$type <- as.factor(rawdata$type)
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+# Remove rows where 'type' is "William Wyler" or NA
+cleaned_data <- rawdata[rawdata$type != "William Wyler" & rawdata$type != "Unknown" & !is.na(rawdata$type), ]
+
+```
+
+This code snippet analyzes the cleaned_data to count occurrences based on country and type. It then groups this data by country, calculates the percentage of each type within each country group, and stores this information in percentage_data. Finally, it ungroups the data to return it to a standard format, allowing for further exploration and analysis of the percentage distribution of type across different countries.
+
+```{r}
+# Count occurrences of each country and type
+count_data <- count(cleaned_data, country, type)
+
+# Group by country
+grouped_data <- group_by(count_data, country)
+
+# Calculate percentage within each group
+grouped_data <- mutate(grouped_data, percentage = n / sum(n) * 100)
+
+# Ungroup the data
+percentage_data <- ungroup(grouped_data)
+
+# Show percentage_data
+percentage_data
+```
+
+
+```{r}
+# Calculate total count of each country
+country_totals <- aggregate(percentage_data$n, by = list(percentage_data$country), FUN = sum)
+
+# Select top 10 countries by total count
+top_10_countries <- country_totals[order(country_totals$x, decreasing = TRUE), ]$Group.1[1:10]
+
+# Subset data for top 10 countries only
+top_10_data <- subset(percentage_data, country %in% top_10_countries)
+
+# Create pie chart for top 10 countries with improved readability
+library(ggplot2)
+
+# Plotting the pie chart
+pie_plot <- ggplot(top_10_data, aes(x = "", y = n, fill = type)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar(theta = "y") +
+  facet_wrap(~ country, scales = "free_y") +
+  geom_text(aes(label = paste0(round(percentage, 2), "%")),
+            position = position_stack(vjust = 0.5), color = "white", size = 4, family = "sans") +  # Adjust text size, color, and font family
+  theme_void() +
+  scale_fill_manual(values = c("#5E81AC", "#E19C24"), labels = c("Movie", "TV Show")) +  # Adjust colors and labels
+  theme(legend.position = "bottom", legend.text = element_text(size = 10, family = "sans"), plot.title = element_text(hjust = 0.5, size = 14, family = "sans")) +  # Adjust legend and title text
+  labs(fill = "Type", title = "Percentage of Movies vs TV Shows in Top 10 Countries")  # Adjust title
+
+# Show the plot
+print(pie_plot)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

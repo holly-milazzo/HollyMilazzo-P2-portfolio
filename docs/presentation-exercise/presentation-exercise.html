@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Holly Milazzo">
 
 <title>Holly Milazzo Data Analysis Portfolio - Presentation Exercise</title>
 <style>
@@ -19,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -142,6 +177,12 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Holly Milazzo </p>
+          </div>
+  </div>
     
   
     
@@ -150,7 +191,80 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<p>Placeholder file for the future data/results presentation exercise.</p>
+<p>In this exercise, I recreated a series of pie charts which were originally presented in an exploratory data analysis (EDA) on Netflix movies and TV shows and used Python to develop. The original visualizations, found here <a href="https://www.kaggle.com/code/lp2595/netflix-movies-and-tv-shows-eda#WOW!-Mostly,-Contents-from-Japan-and-South-Korea-are-TV-Shows">Link</a>, focused on analyzing content distribution from various countries, emphasizing a predominant presence of TV shows in Japan and South Korea.</p>
+<p>Instead of focusing solely on these regions, I chose to highlight the top 10 countries in the Netflix dataset. By leveraging R’s ggplot2 library, I replicated these charts to explore similar insights, highlighting the proportional distribution of movies versus TV shows across different countries within the dataset. I also use ChatGPT for assistance on converting Python code to R.</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dplyr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.3.3</code></pre>
+</div>
+</div>
+<p>This code snippet analyzes the cleaned_data to count occurrences based on country and type. It then groups this data by country, calculates the percentage of each type within each country group, and stores this information in percentage_data. Finally, it ungroups the data to return it to a standard format, allowing for further exploration and analysis of the percentage distribution of type across different countries.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count occurrences of each country and type</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> <span class="fu">count</span>(cleaned_data, country, type)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by country</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>grouped_data <span class="ot">&lt;-</span> <span class="fu">group_by</span>(count_data, country)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate percentage within each group</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>grouped_data <span class="ot">&lt;-</span> <span class="fu">mutate</span>(grouped_data, <span class="at">percentage =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n) <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ungroup the data</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>percentage_data <span class="ot">&lt;-</span> <span class="fu">ungroup</span>(grouped_data)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Show percentage_data</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>percentage_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 847 × 4
+   country                                             type        n percentage
+   &lt;chr&gt;                                               &lt;fct&gt;   &lt;int&gt;      &lt;dbl&gt;
+ 1 , France, Algeria                                   Movie       1      100  
+ 2 , South Korea                                       TV Show     1      100  
+ 3 Argentina                                           Movie      38       67.9
+ 4 Argentina                                           TV Show    18       32.1
+ 5 Argentina, Brazil, France, Poland, Germany, Denmark Movie       1      100  
+ 6 Argentina, Chile                                    Movie       2      100  
+ 7 Argentina, Chile, Peru                              Movie       1      100  
+ 8 Argentina, France                                   Movie       1      100  
+ 9 Argentina, France, United States, Germany, Qatar    Movie       1      100  
+10 Argentina, Italy                                    Movie       1      100  
+# ℹ 837 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate total count of each country</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>country_totals <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(percentage_data<span class="sc">$</span>n, <span class="at">by =</span> <span class="fu">list</span>(percentage_data<span class="sc">$</span>country), <span class="at">FUN =</span> sum)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Select top 10 countries by total count</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>top_10_countries <span class="ot">&lt;-</span> country_totals[<span class="fu">order</span>(country_totals<span class="sc">$</span>x, <span class="at">decreasing =</span> <span class="cn">TRUE</span>), ]<span class="sc">$</span>Group<span class="fl">.1</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset data for top 10 countries only</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>top_10_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(percentage_data, country <span class="sc">%in%</span> top_10_countries)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create pie chart for top 10 countries with improved readability</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the pie chart</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>pie_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(top_10_data, <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> n, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">width =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_polar</span>(<span class="at">theta =</span> <span class="st">"y"</span>) <span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> country, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(percentage, <span class="dv">2</span>), <span class="st">"%"</span>)),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">family =</span> <span class="st">"sans"</span>) <span class="sc">+</span>  <span class="co"># Adjust text size, color, and font family</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#5E81AC"</span>, <span class="st">"#E19C24"</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Movie"</span>, <span class="st">"TV Show"</span>)) <span class="sc">+</span>  <span class="co"># Adjust colors and labels</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>, <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>, <span class="at">family =</span> <span class="st">"sans"</span>), <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">family =</span> <span class="st">"sans"</span>)) <span class="sc">+</span>  <span class="co"># Adjust legend and title text</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Type"</span>, <span class="at">title =</span> <span class="st">"Percentage of Movies vs TV Shows in Top 10 Countries"</span>)  <span class="co"># Adjust title</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the plot</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(pie_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="presentation-exercise_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 
 
 
