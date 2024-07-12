@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Holly Milazzo">
-<meta name="dcterms.date" content="2024-07-11">
+<meta name="dcterms.date" content="2024-07-12">
 
 <title>Holly Milazzo Data Analysis Portfolio - Manuscript/Report Template for a Data Analysis Project</title>
 <style>
@@ -207,7 +207,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 11, 2024</p>
+      <p class="date">July 12, 2024</p>
     </div>
   </div>
   
@@ -267,13 +267,13 @@ div.csl-indent {
 <section id="methods" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Methods</h1>
 <p><em>Describe your methods. That should describe the data, the cleaning processes, and the analysis approaches. You might want to provide a shorter description here and all the details in the supplement.</em></p>
-<p>I will be using EDA initially and from there possibly branching out into some hypothesis testing using Chi-Square or regression to see if there is any association between genre and retention.</p>
-<section id="data-aquisition" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="data-aquisition"><span class="header-section-number">2.1</span> Data aquisition</h2>
+<p>I will be using EDA initially and from there branching out into some hypothesis testing using Multinomial Logistic Regression to see if there is any association between country, content type, and rating.</p>
+<section id="data-acquisition" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="data-acquisition"><span class="header-section-number">2.1</span> Data Acquisition</h2>
 <p>I imported the data for Netflix Movies and TV Shows which was available on Kaggle.com site. My raw data file is available through file path folders: starter-analysis-exercise &gt; data &gt; raw-data &gt; netflix_titles.xlsx</p>
 </section>
 <section id="data-import-and-cleaning" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="data-import-and-cleaning"><span class="header-section-number">2.2</span> Data import and cleaning</h2>
+<h2 data-number="2.2" class="anchored" data-anchor-id="data-import-and-cleaning"><span class="header-section-number">2.2</span> Data Import and Cleaning</h2>
 <p>The file path to my code file for cleaning my dataset is: starter-analysis-exercise &gt; code &gt; processing-code &gt; processingfile</p>
 <p>First I imported the data…</p>
 <div class="cell">
@@ -281,7 +281,12 @@ div.csl-indent {
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"starter-analysis-exercise"</span>,<span class="st">"data"</span>,<span class="st">"raw-data"</span>,<span class="st">"exampledata.xlsx"</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>rawdata <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(data_location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>here are some of the initial cleaning techniques…</p>
+<p>here are some of the initial cleaning techniques and a few reasons why I chose to do them:</p>
+<ul>
+<li><p>For the country column, I filled missing values with the mode (most frequently occurring country).</p></li>
+<li><p>Converted the date_added to a Date format as a crucial step for any potential time series or date-related analysis.</p></li>
+<li><p>Converted type to a factor since I am planning on performing statistical tests and/or modeling that may need categorical input features.</p></li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Handling missing values</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -291,15 +296,20 @@ div.csl-indent {
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>mode_country <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">sort</span>(<span class="fu">table</span>(rawdata<span class="sc">$</span>country), <span class="at">decreasing =</span> <span class="cn">TRUE</span>))[<span class="dv">1</span>]</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>rawdata<span class="sc">$</span>country[<span class="fu">is.na</span>(rawdata<span class="sc">$</span>country)] <span class="ot">&lt;-</span> mode_country</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Converting date formats</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Safe conversion of date formats with error handling</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>rawdata<span class="sc">$</span>date_added <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(rawdata<span class="sc">$</span>date_added, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardizing categorical variables</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>rawdata<span class="sc">$</span>type <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(rawdata<span class="sc">$</span>type)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the cleaned data</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="fu">any</span>(<span class="fu">is.na</span>(rawdata<span class="sc">$</span>date_added))) {</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">warning</span>(<span class="st">"There were errors in date conversion. Check date formats."</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were errors in date conversion. Check date formats.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Standardizing categorical variables</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>rawdata<span class="sc">$</span>type <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(rawdata<span class="sc">$</span>type)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the cleaned data</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 12
   show_id type    title    director cast  country date_added release_year rating
@@ -315,17 +325,11 @@ div.csl-indent {
 </div>
 <p>I also needed to do some clean up when it came to content ‘type’ as it included unwanted values…</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows where 'type' is "William Wyler" or NA</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cleaned_data <span class="ot">&lt;-</span> rawdata[rawdata<span class="sc">$</span>type <span class="sc">!=</span> <span class="st">"William Wyler"</span> <span class="sc">&amp;</span> rawdata<span class="sc">$</span>type <span class="sc">!=</span> <span class="st">"Unknown"</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(rawdata<span class="sc">$</span>type), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows where 'type' is "William Wyler" or NA</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>cleaned_data <span class="ot">&lt;-</span> rawdata[rawdata<span class="sc">$</span>type <span class="sc">!=</span> <span class="st">"William Wyler"</span> <span class="sc">&amp;</span> rawdata<span class="sc">$</span>type <span class="sc">!=</span> <span class="st">"Unknown"</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(rawdata<span class="sc">$</span>type), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><em>Write code that reads in the file and cleans it so it’s ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g.&nbsp;as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along.</em></p>
-</section>
-<section id="statistical-analysis" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="statistical-analysis"><span class="header-section-number">2.3</span> Statistical analysis</h2>
-<p><em>Explain anything related to your statistical analyses.</em></p>
-<p>The relevant variables I’ll be using during my statistical analysis to determine how regional production practices and content types align with age rating distributions will be: Country, Type, and Rating.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cleaned_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cleaned_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   show_id                     type         title             director        
  Length:8809        Movie        :6132   Length:8809        Length:8809       
@@ -353,187 +357,454 @@ div.csl-indent {
                                                                             </code></pre>
 </div>
 </div>
+<p><em>Write code that reads in the file and cleans it so it’s ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g.&nbsp;as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along.</em></p>
+</section>
+<section id="statistical-analysis" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="statistical-analysis"><span class="header-section-number">2.3</span> Statistical Analysis</h2>
+<p><em>Explain anything related to your statistical analyses.</em></p>
+<p>The relevant variables I’ll be using during my statistical analysis to determine how regional production practices and content types align with age rating distributions will be: Country, Type, and Rating.</p>
+<p>Let’s double check if there is any other missing data in my cleaned_data before I perform my analysis… nothing significant in 3 variables I’ll be using.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the number of missing values for each column in cleaned_data</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>missing_data_summary <span class="ot">&lt;-</span> <span class="fu">sapply</span>(cleaned_data, <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x)))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the summary of missing data</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(missing_data_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     show_id         type        title     director         cast      country 
+           0            0            0            0          825            0 
+  date_added release_year       rating     duration    listed_in  description 
+          11            1            5            4            1            1 </code></pre>
+</div>
+</div>
+<p>I also want to check for any outliers as well…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a boxplot for each numeric variable in the dataframe</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>numeric_vars <span class="ot">&lt;-</span> <span class="fu">sapply</span>(cleaned_data, is.numeric)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="fu">any</span>(numeric_vars)) {</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Filter only numeric columns</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  numeric_data <span class="ot">&lt;-</span> cleaned_data[, numeric_vars]</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Melt the data for easy plotting with ggplot2</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(reshape2)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  long_data <span class="ot">&lt;-</span> <span class="fu">melt</span>(numeric_data)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Plot</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(long_data, <span class="fu">aes</span>(<span class="at">x =</span> variable, <span class="at">y =</span> value)) <span class="sc">+</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_boxplot</span>(<span class="at">outlier.colour =</span> <span class="st">"red"</span>, <span class="at">outlier.shape =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Boxplot for Each Numeric Variable"</span>, <span class="at">x =</span> <span class="st">"Variables"</span>, <span class="at">y =</span> <span class="st">"Values"</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"No numeric variables found for plotting."</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'reshape2' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 row containing non-finite outside the scale range
+(`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Given my hypothesis, which aims to explore how the type of content (Movie or TV Show) and the country of origin influence the distribution of age ratings on Netflix titles, regression testing does not seem like the best testing method because I using 2 categorical variables (Type and Rating) as target variables. My ‘rating’ variable is not ordinal either which means we’d also leave out performing logistic regression.</p>
+<p>I believe the best testing methods in this case are either Chi-square (to test independence) or Multinomial Logistic Regression. MLR would be useful since the ‘Rating’ has multiple categories without order and would allow me to model the probability of each rating category as a function of ‘Type’ and ‘Country’.</p>
+<p>I will need install the following packages for the next part of my analysis</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nnet)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forcats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Initially, when I ran the model it gave an error due to the complexity in the number of parameters it created based on the variations of categories I have in my variables. ChatGPT recommended I use the code below to create a decay term for regularization, which helps to manage the complexity of the model by shrinking the regression coefficients.</p>
+<p>With the convergence of my multinomial logistic regression as indicated by “converged” in the output below, the next steps involve interpreting the model’s results and using them to validate my hypothesis or make further decisions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming 'Country' has many categories, we reduce them</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>cleaned_data<span class="sc">$</span>country <span class="ot">&lt;-</span> <span class="fu">fct_lump_n</span>(cleaned_data<span class="sc">$</span>country, <span class="at">n =</span> <span class="dv">10</span>)  <span class="co"># Keeps the top 10 countries, others lumped into "Other"</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>cleaned_data<span class="sc">$</span>country <span class="ot">&lt;-</span> <span class="fu">factor</span>(cleaned_data<span class="sc">$</span>country)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model with increased decay for regularization</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">multinom</span>(type <span class="sc">~</span> country <span class="sc">+</span> rating, <span class="at">data =</span> cleaned_data, <span class="at">MaxNWts =</span> <span class="dv">10000</span>, <span class="at">decay =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in multinom(type ~ country + rating, data = cleaned_data, MaxNWts =
+10000, : group 'William Wyler' is empty</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># weights:  29 (28 variable)
+initial  value 6102.467778 
+iter  10 value 4551.137216
+iter  20 value 4300.674269
+iter  30 value 4276.943332
+final  value 4276.909270 
+converged</code></pre>
+</div>
+</div>
+<p>Now to run my multinomial model….</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure that 'Country', 'Type', and 'Rating' are factors</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>cleaned_data<span class="sc">$</span>country <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(cleaned_data<span class="sc">$</span>country)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>cleaned_data<span class="sc">$</span>type <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(cleaned_data<span class="sc">$</span>type)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>cleaned_data<span class="sc">$</span>rating <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(cleaned_data<span class="sc">$</span>rating)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Multinomial logistic regression</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>multinom_model <span class="ot">&lt;-</span> <span class="fu">multinom</span>(rating <span class="sc">~</span> country <span class="sc">+</span> type, <span class="at">data =</span> cleaned_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># weights:  252 (221 variable)
+initial  value 25446.832957 
+iter  10 value 18728.030041
+iter  20 value 16906.955079
+iter  30 value 15526.132442
+iter  40 value 14980.668736
+iter  50 value 14724.154902
+iter  60 value 14656.735665
+iter  70 value 14624.490886
+iter  80 value 14615.654822
+iter  90 value 14612.398803
+iter 100 value 14611.228013
+final  value 14611.228013 
+stopped after 100 iterations</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the model</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(multinom_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sqrt(diag(vc)): NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+multinom(formula = rating ~ country + type, data = cleaned_data)
+
+Coefficients:
+         (Intercept) countryEgypt countryFrance countryIndia countryJapan
+74 min     -1.813493    2.9754275     0.3956199   -0.9714214   2.41979551
+84 min     -1.813493    2.9754275     0.3956199   -0.9714214   2.41979551
+A          -1.813493    2.9754275     0.3956199   -0.9714214   2.41979551
+G           5.117559   -3.6377154    -4.6556665   -5.1956130  -4.42089642
+NC-17       5.293475   -0.7285485    -5.1558932   -7.6811791  -3.91040508
+NR          5.969772   -2.3816946    -5.6716291    2.2264249  -4.66714238
+PG          7.389822   -7.7808417     0.8624780    0.1309791   2.68664023
+PG-13       6.411672   -4.3058335     1.8455658    1.7822731   3.37872073
+R           8.081236   -8.5606599     0.8652298   -1.2221487  -9.56543245
+TV-14       8.085485    9.1241640     2.6714935    4.9635913   3.86190160
+TV-G        7.430619    5.4642930     0.9222056    1.4958886  -0.08943671
+TV-MA       9.003829    7.3208905     3.1577765    3.2632319   3.01945227
+TV-PG       7.943574    6.3842254     0.8702201    3.6965706   3.19144246
+TV-Y        7.355051   -8.9476752     2.3120732    0.9286445   0.22410134
+TV-Y7       6.693138   -5.4072775     1.7538064    2.6024231   3.02469907
+TV-Y7-FV    5.172363   -0.8235049    -5.4307087    1.6013327  -4.59641820
+UR         -0.627117    2.4086825     8.8892483   -1.9515073   2.04209352
+         countryMexico countrySouth Korea countrySpain countryUnited Kingdom
+74 min       0.9730047          2.7803449    0.6678208             2.2538170
+84 min       0.9730047          2.7803449    0.6678208             2.2538170
+A            0.9730047          2.7803449    0.6678208             2.2538170
+G           -3.9125398         -2.9078780   -5.4229899            -5.8633005
+NC-17       -3.8296394         -3.0105907   -5.6584963            -5.0598829
+NR           5.0036247          4.9109376    3.4881020             2.9320343
+PG          -8.5179746         -8.1423723    2.1294223             0.7227442
+PG-13        3.2530670         -6.6138781    3.1111172             3.0830156
+R            2.9514864         -9.0589952    2.1359756             2.8242029
+TV-14        3.5870699          4.7420142    3.5198169             2.7279862
+TV-G         2.3579226          0.8890635    1.5689083             2.1964467
+TV-MA        4.5253938          3.9994634    4.8803234             2.8080144
+TV-PG        2.9887764          3.2667348    2.6958972             2.9379047
+TV-Y        -9.3982700          1.8656819    2.0737436             1.6912606
+TV-Y7        3.1197112          3.0544350  -10.4953965             0.9746520
+TV-Y7-FV    -4.0871792         -4.0443495   -5.8254463            -5.3494891
+UR           0.3953846          2.6887892   -0.1288406             1.4823803
+         countryUnited States countryOther typeTV Show typeWilliam Wyler
+74 min              2.4067979    1.6686629  -1.4146175                 0
+84 min              2.4067979    1.6686629  -1.4146175                 0
+A                   2.4067979    1.6686629  -1.4146175                 0
+G                  -1.1608910    2.8067915  -5.1637780                 0
+NC-17              -4.7285893    0.2156647  -2.7012113                 0
+NR                 -1.8744889    2.7914691   0.9037756                 0
+PG                 -1.6546214    2.7519333  -7.2607091                 0
+PG-13              -0.1178885    4.2800944  -6.9351304                 0
+R                  -1.3716861    3.1313741  -2.1930341                 0
+TV-14              -1.5872989    3.4023549   3.3427349                 0
+TV-G               -2.7097828    1.6531530   3.4271192                 0
+TV-MA              -1.7967268    3.1202129   3.1682250                 0
+TV-PG              -2.0547150    2.5757827   3.3006469                 0
+TV-Y               -2.5339954    1.8800122   4.0074045                 0
+TV-Y7              -1.7246375    2.4683118   4.0533445                 0
+TV-Y7-FV           -4.1470108    0.8800138   2.3830069                 0
+UR                  1.2439358    6.1830410  -2.8364490                 0
+
+Std. Errors:
+         (Intercept) countryEgypt countryFrance countryIndia countryJapan
+74 min      30.57980   1.94029326      88.62114     91.98723    58.969137
+84 min      30.57980   1.94029307      88.62114     91.98723    58.969137
+A           30.57980   1.94029309      88.62114     91.98723    58.969137
+G           11.16170   1.74214107      49.47545     37.25970    51.685059
+NC-17       11.15317  64.17328348      57.13409     97.41792    37.274176
+NR          11.13089  96.09485455      51.75340     20.97707    35.402617
+PG          11.11513   0.24626247      16.83676     20.97465     9.579189
+PG-13       11.12405   3.59431522      16.84204     20.97359     9.592387
+R           11.11243   0.22528698      16.82166     20.98391     3.337291
+TV-14       11.11153  23.27198345      16.80902     20.96149     9.564357
+TV-G        11.11309  23.28856090      16.82217     20.96475     9.612998
+TV-MA       11.11054  23.27194785      16.80747     20.96103     9.563317
+TV-PG       11.11182  23.27581459      16.81692     20.96176     9.565332
+TV-Y        11.11272   0.09613832      16.81120     20.96650     9.588898
+TV-Y7       11.11502   1.91906075      16.81878     20.96480     9.570199
+TV-Y7-FV    11.15170  68.57210422      61.20427     21.00476    39.822617
+UR          21.70212   2.73885482      24.67119    106.23259    40.817253
+         countryMexico countrySouth Korea countrySpain countryUnited Kingdom
+74 min       17.074236          88.058968    12.019499             41.377546
+84 min       17.074236          88.058968    12.019499             41.377546
+A            17.074236          88.058968    12.019499             41.377545
+G            65.984342          49.655114    57.939375             55.896332
+NC-17        58.794986          47.841753    47.815996             35.156970
+NR           19.621310          14.932895    24.094837              8.687812
+PG            9.387653           2.540646    24.088186              8.684983
+PG-13        19.634169           5.659216    24.091799              8.676006
+R            19.612109           1.960626    24.078070              8.657815
+TV-14        19.607785          14.910581    24.070186              8.655850
+TV-G         19.617579          14.940880    24.087605              8.659077
+TV-MA        19.605865          14.909888    24.068534              8.654282
+TV-PG        19.609841          14.912261    24.072615              8.656139
+TV-Y          8.884822          14.918331    24.078332              8.659104
+TV-Y7        19.615442          14.916695     1.193296              8.669398
+TV-Y7-FV     62.405980          52.188577    37.904614             34.897954
+UR          115.113183          55.769537    19.949580             31.851655
+         countryUnited States countryOther typeTV Show typeWilliam Wyler
+74 min               30.62111     37.95124   15.054802      1.114630e-07
+84 min               30.62111     37.95124   15.054802               NaN
+A                    30.62111     37.95124   15.054802               NaN
+G                    11.23602     18.89397   15.773212               NaN
+NC-17                11.27180     18.91371   17.299287               NaN
+NR                   11.20511     18.87443    8.361214      3.600569e-10
+PG                   11.18848     18.86445   16.514523      2.594444e-10
+PG-13                11.19722     18.86957   12.506672      1.625364e-11
+R                    11.18563     18.86269    8.375807      1.940496e-13
+TV-14                11.18471     18.86211    8.348343      1.369635e-13
+TV-G                 11.18648     18.86341    8.349333      3.937205e-14
+TV-MA                11.18369     18.86151    8.348272      4.859999e-14
+TV-PG                11.18504     18.86235    8.348512      1.805119e-14
+TV-Y                 11.18596     18.86301    8.348988               NaN
+TV-Y7                11.18818     18.86437    8.348937      3.564171e-26
+TV-Y7-FV             11.24518     18.89770    8.421118      0.000000e+00
+UR                   21.76174     26.49253   17.536564      0.000000e+00
+
+Residual Deviance: 29222.46 
+AIC: 29630.46 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To get probabilities</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>probabilities <span class="ot">&lt;-</span> <span class="fu">predict</span>(multinom_model, <span class="at">type =</span> <span class="st">"probs"</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Viewing the first few rows of probabilities</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(probabilities)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        66 min       74 min       84 min            A            G        NC-17
+1 2.197696e-04 3.977743e-04 3.977743e-04 3.977743e-04 1.149018e-02 3.866288e-04
+2 1.046572e-07 2.200441e-08 2.200441e-08 2.200441e-08 1.654515e-06 1.734750e-06
+3 1.258220e-05 5.534332e-06 5.534332e-06 5.534332e-06 3.762838e-06 1.485806e-06
+4 1.258220e-05 5.534332e-06 5.534332e-06 5.534332e-06 3.762838e-06 1.485806e-06
+5 4.468941e-08 6.704574e-10 6.704574e-10 6.704574e-10 2.364318e-10 2.754968e-10
+6 1.258220e-05 5.534332e-06 5.534332e-06 5.534332e-06 3.762838e-06 1.485806e-06
+            NR           PG        PG-13            R     TV-14       TV-G
+1 0.0131985545 6.803521e-02 1.189387e-01 1.802553e-01 0.1459130 0.02467179
+2 0.0016490449 1.866344e-06 4.479769e-06 8.648112e-04 0.2888059 0.02839096
+3 0.0018656069 2.736761e-06 6.625572e-06 1.151475e-03 0.2363820 0.04348793
+4 0.0018656069 2.736761e-06 6.625572e-06 1.151475e-03 0.2363820 0.04348793
+5 0.0004001956 5.796439e-08 1.573624e-07 4.749477e-06 0.5875946 0.01035897
+6 0.0018656069 2.736761e-06 6.625572e-06 1.151475e-03 0.2363820 0.04348793
+      TV-MA     TV-PG        TV-Y      TV-Y7     TV-Y7-FV           UR
+1 0.2964644 0.0793353 0.027272531 0.03160530 0.0006127349 4.072383e-04
+2 0.4582647 0.1051285 0.059006494 0.05739596 0.0004821809 1.587896e-06
+3 0.4033705 0.1232277 0.085883178 0.10420632 0.0003801792 1.367047e-06
+4 0.4033705 0.1232277 0.085883178 0.10420632 0.0003801792 1.367047e-06
+5 0.2257690 0.1376917 0.009731089 0.02802596 0.0004235554 1.988237e-10
+6 0.4033705 0.1232277 0.085883178 0.10420632 0.0003801792 1.367047e-06</code></pre>
+</div>
+</div>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
 <section id="results" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Results</h1>
+<p>Interpretation of Multinomial Logistic Regression model results</p>
+<p>The results from the MLR provided a complex but informative view into how different countries and types of content (e.g., Movies vs.&nbsp;TV Shows) relate to the ratings of Netflix titles. Here’s a breakdown and interpretation of the results:</p>
+<p>The model successfully converged after 100 iterations, indicating that the algorithm was able to find a stable solution. The final value (14611.228013) of the deviance indicates the fit of the model to my data.</p>
+<p>The coefficients for each level of the factors (Country, Type) show how each category relates to the probability of the content having a specific rating compared to the baseline category, however, without knowing the standard errors or p-values it’s challenging to discuss the statistical significance of each coefficient - only the magnitude and direction (positive or negative) of the coefficients can provide insights at this point.</p>
 <section id="exploratorydescriptive-analysis" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="exploratorydescriptive-analysis"><span class="header-section-number">3.1</span> Exploratory/Descriptive analysis</h2>
+<h2 data-number="3.1" class="anchored" data-anchor-id="exploratorydescriptive-analysis"><span class="header-section-number">3.1</span> Exploratory/Descriptive Analysis</h2>
+<p>Distribution between Movies and TV Shows:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the group_by and summarise operations</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>type_distribution <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(. <span class="sc">~</span> type, <span class="at">data =</span> cleaned_data, <span class="at">FUN =</span> length)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(type_distribution)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"count"</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution of content types</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="at">height =</span> type_distribution<span class="sc">$</span>count,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> type_distribution<span class="sc">$</span>type,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"purple"</span>, <span class="st">"orange"</span>),</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Distribution of Content Types - Movies v TV Shows"</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Type"</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Count"</span>,</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">las =</span> <span class="dv">1</span>) <span class="co"># las = 1 makes axis labels horizontal</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the group_by and summarise operations</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>type_distribution <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(. <span class="sc">~</span> type, <span class="at">data =</span> cleaned_data, <span class="at">FUN =</span> length)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(type_distribution)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"count"</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution of content types</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(<span class="at">height =</span> type_distribution<span class="sc">$</span>count,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> type_distribution<span class="sc">$</span>type,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"purple"</span>, <span class="st">"orange"</span>),</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Distribution of Content Types - Movies v TV Shows"</span>,</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Type"</span>,</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Count"</span>,</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">las =</span> <span class="dv">1</span>) <span class="co"># las = 1 makes axis labels horizontal</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We see from the distribution that it appears movies are being streamed substantially more than TV shows, but to get a better sense of this let’s represent it as a percentage instead</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>type_distribution <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(. <span class="sc">~</span> type, <span class="at">data =</span> cleaned_data, <span class="at">FUN =</span> length)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(type_distribution)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"count"</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>type_distribution<span class="sc">$</span>percentage <span class="ot">&lt;-</span> <span class="fu">round</span>((type_distribution<span class="sc">$</span>count <span class="sc">/</span> <span class="fu">sum</span>(type_distribution<span class="sc">$</span>count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> <span class="fu">paste</span>(type_distribution<span class="sc">$</span>type, type_distribution<span class="sc">$</span>percentage, <span class="st">"%"</span>)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">pie</span>(type_distribution<span class="sc">$</span>count,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> labels,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"purple"</span>, <span class="st">"orange"</span>),</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">"Percentage of Movies vs TV Shows"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>type_distribution <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(. <span class="sc">~</span> type, <span class="at">data =</span> cleaned_data, <span class="at">FUN =</span> length)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(type_distribution)[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">"count"</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>type_distribution<span class="sc">$</span>percentage <span class="ot">&lt;-</span> <span class="fu">round</span>((type_distribution<span class="sc">$</span>count <span class="sc">/</span> <span class="fu">sum</span>(type_distribution<span class="sc">$</span>count)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> <span class="fu">paste</span>(type_distribution<span class="sc">$</span>type, type_distribution<span class="sc">$</span>percentage, <span class="st">"%"</span>)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">pie</span>(type_distribution<span class="sc">$</span>count,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> labels,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"purple"</span>, <span class="st">"orange"</span>),</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">"Percentage of Movies vs TV Shows"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Now I’d like to see which countries the Movie/TV show content originate from</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>country_counts <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">sort</span>(<span class="fu">table</span>(cleaned_data<span class="sc">$</span>country), <span class="at">decreasing =</span> <span class="cn">TRUE</span>), <span class="dv">10</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to data frame for ggplot</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>country_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">country =</span> <span class="fu">names</span>(country_counts),</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">count =</span> <span class="fu">as.numeric</span>(country_counts)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the bar chart</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(country_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(country, <span class="sc">-</span>count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"purple"</span>) <span class="sc">+</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> count), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Country"</span>, <span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">title =</span> <span class="st">"Top 10 Countries (Top 3 Highlighted)"</span>) <span class="sc">+</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data =</span> country_df[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, ], <span class="fu">aes</span>(<span class="at">x =</span> country, <span class="at">y =</span> count), <span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"orange"</span>)</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>country_counts <span class="ot">&lt;-</span> <span class="fu">head</span>(<span class="fu">sort</span>(<span class="fu">table</span>(cleaned_data<span class="sc">$</span>country), <span class="at">decreasing =</span> <span class="cn">TRUE</span>), <span class="dv">10</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to data frame for ggplot</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>country_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">country =</span> <span class="fu">names</span>(country_counts),</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">count =</span> <span class="fu">as.numeric</span>(country_counts)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the bar chart</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(country_df, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(country, <span class="sc">-</span>count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"purple"</span>) <span class="sc">+</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> count), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Country"</span>, <span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">title =</span> <span class="st">"Top 10 Countries (Top 3 Highlighted)"</span>) <span class="sc">+</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data =</span> country_df[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, ], <span class="fu">aes</span>(<span class="at">x =</span> country, <span class="at">y =</span> count), <span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"orange"</span>)</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Let’s see the distribution of ratings:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution of ratings</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cleaned_data, <span class="fu">aes</span>(<span class="at">x =</span> rating)) <span class="sc">+</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill =</span> <span class="st">"#4E79A7"</span>) <span class="sc">+</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Ratings"</span>,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Rating"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution of ratings</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cleaned_data, <span class="fu">aes</span>(<span class="at">x =</span> rating)) <span class="sc">+</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill =</span> <span class="st">"#4E79A7"</span>) <span class="sc">+</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Ratings"</span>,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Rating"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the 'listed_in' column into individual genres</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>genres <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">strsplit</span>(cleaned_data<span class="sc">$</span>listed_in, <span class="st">", "</span>))</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>genre_table <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">table</span>(genres))</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange by frequency in descending order and select top 10</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>genre_counts <span class="ot">&lt;-</span> genre_table[<span class="fu">order</span>(<span class="sc">-</span>genre_table<span class="sc">$</span>Freq), ]</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>genre_counts <span class="ot">&lt;-</span> genre_counts[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, ]</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the top 10 genres</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the bar chart</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> genre_counts, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(genres, Freq), <span class="at">y =</span> Freq)) <span class="sc">+</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#4E79A7"</span>) <span class="sc">+</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> Freq), </span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>), </span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"white"</span>, </span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">4</span>, </span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">family =</span> <span class="st">"sans"</span>) <span class="sc">+</span>  <span class="co"># Adjust position and styling of labels</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Top 10 Genres"</span>,</span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Genre"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">family =</span> <span class="st">"sans"</span>)) <span class="sc">+</span>  <span class="co"># Rotate x-axis labels</span></span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Given that Netflix launched at the end of August in 1997 as a DVD rental service this distribution makes sense:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the 'listed_in' column into individual genres</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>genres <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">strsplit</span>(cleaned_data<span class="sc">$</span>listed_in, <span class="st">", "</span>))</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>genre_table <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">table</span>(genres))</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange by frequency in descending order and select top 10</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>genre_counts <span class="ot">&lt;-</span> genre_table[<span class="fu">order</span>(<span class="sc">-</span>genre_table<span class="sc">$</span>Freq), ]</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>genre_counts <span class="ot">&lt;-</span> genre_counts[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, ]</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the top 10 genres</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the bar chart</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> genre_counts, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(genres, Freq), <span class="at">y =</span> Freq)) <span class="sc">+</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#4E79A7"</span>) <span class="sc">+</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> Freq), </span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>), </span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"white"</span>, </span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">4</span>, </span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">family =</span> <span class="st">"sans"</span>) <span class="sc">+</span>  <span class="co"># Adjust position and styling of labels</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Top 10 Genres"</span>,</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Genre"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">family =</span> <span class="st">"sans"</span>)) <span class="sc">+</span>  <span class="co"># Rotate x-axis labels</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the count of titles by release year</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cleaned_data, <span class="fu">aes</span>(<span class="at">x =</span> release_year)) <span class="sc">+</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>, <span class="at">fill =</span> <span class="st">"#4E79A7"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Count of Titles by Release Year"</span>,</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Release Year"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the count of titles by release year</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cleaned_data, <span class="fu">aes</span>(<span class="at">x =</span> release_year)) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>, <span class="at">fill =</span> <span class="st">"#4E79A7"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Count of Titles by Release Year"</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Release Year"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 1 row containing non-finite outside the scale range
 (`stat_bin()`).</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count occurrences of each country and type</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> <span class="fu">count</span>(cleaned_data, country, type)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by country</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>grouped_data <span class="ot">&lt;-</span> <span class="fu">group_by</span>(count_data, country)</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate percentage within each group</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>grouped_data <span class="ot">&lt;-</span> <span class="fu">mutate</span>(grouped_data, <span class="at">percentage =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n) <span class="sc">*</span> <span class="dv">100</span>)</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ungroup the data</span></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>percentage_data <span class="ot">&lt;-</span> <span class="fu">ungroup</span>(grouped_data)</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Show percentage_data</span></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>percentage_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count occurrences of each country and type</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> <span class="fu">count</span>(cleaned_data, country, type)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by country</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>grouped_data <span class="ot">&lt;-</span> <span class="fu">group_by</span>(count_data, country)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate percentage within each group</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>grouped_data <span class="ot">&lt;-</span> <span class="fu">mutate</span>(grouped_data, <span class="at">percentage =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n) <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ungroup the data</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>percentage_data <span class="ot">&lt;-</span> <span class="fu">ungroup</span>(grouped_data)</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Show percentage_data</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>percentage_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 847 × 4
-   country                                             type        n percentage
-   &lt;chr&gt;                                               &lt;fct&gt;   &lt;int&gt;      &lt;dbl&gt;
- 1 , France, Algeria                                   Movie       1      100  
- 2 , South Korea                                       TV Show     1      100  
- 3 Argentina                                           Movie      38       67.9
- 4 Argentina                                           TV Show    18       32.1
- 5 Argentina, Brazil, France, Poland, Germany, Denmark Movie       1      100  
- 6 Argentina, Chile                                    Movie       2      100  
- 7 Argentina, Chile, Peru                              Movie       1      100  
- 8 Argentina, France                                   Movie       1      100  
- 9 Argentina, France, United States, Germany, Qatar    Movie       1      100  
-10 Argentina, Italy                                    Movie       1      100  
-# ℹ 837 more rows</code></pre>
+<pre><code># A tibble: 22 × 4
+   country type        n percentage
+   &lt;fct&gt;   &lt;fct&gt;   &lt;int&gt;      &lt;dbl&gt;
+ 1 Canada  Movie     122      67.4 
+ 2 Canada  TV Show    59      32.6 
+ 3 Egypt   Movie      92      86.8 
+ 4 Egypt   TV Show    14      13.2 
+ 5 France  Movie      75      60.5 
+ 6 France  TV Show    49      39.5 
+ 7 India   Movie     893      91.9 
+ 8 India   TV Show    79       8.13
+ 9 Japan   Movie      76      31.0 
+10 Japan   TV Show   169      69.0 
+# ℹ 12 more rows</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate total count of each country</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>country_totals <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(percentage_data<span class="sc">$</span>n, <span class="at">by =</span> <span class="fu">list</span>(percentage_data<span class="sc">$</span>country), <span class="at">FUN =</span> sum)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Select top 10 countries by total count</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>top_10_countries <span class="ot">&lt;-</span> country_totals[<span class="fu">order</span>(country_totals<span class="sc">$</span>x, <span class="at">decreasing =</span> <span class="cn">TRUE</span>), ]<span class="sc">$</span>Group<span class="fl">.1</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset data for top 10 countries only</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>top_10_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(percentage_data, country <span class="sc">%in%</span> top_10_countries)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create pie chart for top 10 countries with improved readability</span></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the pie chart</span></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>pie_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(top_10_data, <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> n, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">width =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_polar</span>(<span class="at">theta =</span> <span class="st">"y"</span>) <span class="sc">+</span></span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> country, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(percentage, <span class="dv">2</span>), <span class="st">"%"</span>)),</span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">family =</span> <span class="st">"sans"</span>) <span class="sc">+</span>  <span class="co"># Adjust text size, color, and font family</span></span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#5E81AC"</span>, <span class="st">"#E19C24"</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Movie"</span>, <span class="st">"TV Show"</span>)) <span class="sc">+</span>  <span class="co"># Adjust colors and labels</span></span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>, <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>, <span class="at">family =</span> <span class="st">"sans"</span>), <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">family =</span> <span class="st">"sans"</span>)) <span class="sc">+</span>  <span class="co"># Adjust legend and title text</span></span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Type"</span>, <span class="at">title =</span> <span class="st">"Percentage of Movies vs TV Shows in Top 10 Countries"</span>)  <span class="co"># Adjust title</span></span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the plot</span></span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(pie_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate total count of each country</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>country_totals <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(percentage_data<span class="sc">$</span>n, <span class="at">by =</span> <span class="fu">list</span>(percentage_data<span class="sc">$</span>country), <span class="at">FUN =</span> sum)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Select top 10 countries by total count</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>top_10_countries <span class="ot">&lt;-</span> country_totals[<span class="fu">order</span>(country_totals<span class="sc">$</span>x, <span class="at">decreasing =</span> <span class="cn">TRUE</span>), ]<span class="sc">$</span>Group<span class="fl">.1</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset data for top 10 countries only</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>top_10_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(percentage_data, country <span class="sc">%in%</span> top_10_countries)</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create pie chart for top 10 countries with improved readability</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the pie chart</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>pie_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(top_10_data, <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> n, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">width =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_polar</span>(<span class="at">theta =</span> <span class="st">"y"</span>) <span class="sc">+</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> country, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(percentage, <span class="dv">2</span>), <span class="st">"%"</span>)),</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">family =</span> <span class="st">"sans"</span>) <span class="sc">+</span>  <span class="co"># Adjust text size, color, and font family</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#5E81AC"</span>, <span class="st">"#E19C24"</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Movie"</span>, <span class="st">"TV Show"</span>)) <span class="sc">+</span>  <span class="co"># Adjust colors and labels</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>, <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>, <span class="at">family =</span> <span class="st">"sans"</span>), <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">family =</span> <span class="st">"sans"</span>)) <span class="sc">+</span>  <span class="co"># Adjust legend and title text</span></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Type"</span>, <span class="at">title =</span> <span class="st">"Percentage of Movies vs TV Shows in Top 10 Countries"</span>)  <span class="co"># Adjust title</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the plot</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(pie_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p><em>Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project.</em></p>
@@ -639,8 +910,103 @@ div.csl-indent {
 </div>
 </section>
 <section id="basic-statistical-analysis" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="basic-statistical-analysis"><span class="header-section-number">3.2</span> Basic statistical analysis</h2>
+<h2 data-number="3.2" class="anchored" data-anchor-id="basic-statistical-analysis"><span class="header-section-number">3.2</span> Basic Statistical Analysis</h2>
 <p><em>To get some further insight into your data, if reasonable you could compute simple statistics (e.g.&nbsp;simple models with 1 predictor) to look for associations between your outcome(s) and each individual predictor variable. Though note that unless you pre-specified the outcome and main exposure, any “p&lt;0.05 means statistical significance” interpretation is not valid.</em></p>
+<p>The following code below calculates p-values for the coefficients of a multinomial logistic regression model (created in section above on “Statistical Analysis”) and prints these values. The model was fit to predict the rating of Netflix titles based on the country and type (Movie or TV Show).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> nnet<span class="sc">::</span><span class="fu">multinom</span>(rating <span class="sc">~</span> country <span class="sc">+</span> type, <span class="at">data =</span> cleaned_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># weights:  252 (221 variable)
+initial  value 25446.832957 
+iter  10 value 18728.030041
+iter  20 value 16906.955079
+iter  30 value 15526.132442
+iter  40 value 14980.668736
+iter  50 value 14724.154902
+iter  60 value 14656.735665
+iter  70 value 14624.490886
+iter  80 value 14615.654822
+iter  90 value 14612.398803
+iter 100 value 14611.228013
+final  value 14611.228013 
+stopped after 100 iterations</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the model to get coefficients and standard errors</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>model_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sqrt(diag(vc)): NaNs produced</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate z-values</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>z_values <span class="ot">&lt;-</span> <span class="fu">coef</span>(model_summary) <span class="sc">/</span> model_summary<span class="sc">$</span>standard.errors</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get p-values from z-values</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>p_values <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="fu">abs</span>(z_values), <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="co"># View the p-values</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p_values)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         (Intercept)  countryEgypt countryFrance countryIndia countryJapan
+74 min     0.9527103  1.251543e-01     0.9964381    0.9915742  0.967268034
+84 min     0.9527103  1.251542e-01     0.9964381    0.9915742  0.967268034
+A          0.9527103  1.251542e-01     0.9964381    0.9915742  0.967268034
+G          0.6465984  3.679137e-02     0.9250293    0.8890999  0.931835842
+NC-17      0.6350607  9.909419e-01     0.9280949    0.9371538  0.916447836
+NR         0.5917341  9.802266e-01     0.9127349    0.9154743  0.895118413
+PG         0.5061506 4.226356e-219     0.9591455    0.9950175  0.779119731
+PG-13      0.5643587  2.309339e-01     0.9127417    0.9322797  0.724666236
+R          0.4670884  0.000000e+00     0.9589785    0.9535557  0.004153972
+TV-14      0.4668180  6.950091e-01     0.8737224    0.8128152  0.686374080
+TV-G       0.5037274  8.144927e-01     0.9562812    0.9431172  0.992576807
+TV-MA      0.4177180  7.530805e-01     0.8509713    0.8762846  0.752205374
+TV-PG      0.4746858  7.838650e-01     0.9587305    0.8600203  0.738646096
+TV-Y       0.5080617  0.000000e+00     0.8906105    0.9646718  0.981354403
+TV-Y7      0.5470605  4.837368e-03     0.9169498    0.9012100  0.751961564
+TV-Y7-FV   0.6427779  9.904182e-01     0.9292958    0.9392308  0.908110401
+UR         0.9769471  3.791580e-01     0.7186162    0.9853436  0.960098358
+         countryMexico countrySouth Korea countrySpain countryUnited Kingdom
+74 min       0.9545558       9.748120e-01 9.556912e-01             0.9565611
+84 min       0.9545558       9.748120e-01 9.556912e-01             0.9565611
+A            0.9545558       9.748120e-01 9.556912e-01             0.9565611
+G            0.9527172       9.533014e-01 9.254288e-01             0.9164583
+NC-17        0.9480661       9.498238e-01 9.057991e-01             0.8855616
+NR           0.7987156       7.422562e-01 8.848960e-01             0.7357489
+PG           0.3642168       1.351362e-03 9.295579e-01             0.9336785
+PG-13        0.8684057       2.425279e-01 8.972501e-01             0.7223277
+R            0.8803756       3.828882e-06 9.293121e-01             0.7442710
+TV-14        0.8548442       7.504621e-01 8.837387e-01             0.7526394
+TV-G         0.9043292       9.525495e-01 9.480678e-01             0.7997596
+TV-MA        0.8174559       7.885128e-01 8.393165e-01             0.7455858
+TV-PG        0.8788619       8.266004e-01 9.108312e-01             0.7343074
+TV-Y         0.2901515       9.004763e-01 9.313671e-01             0.8451457
+TV-Y7        0.8736345       8.377548e-01 1.426641e-18             0.9104869
+TV-Y7-FV     0.9477812       9.382298e-01 8.778565e-01             0.8781700
+UR           0.9972595       9.615469e-01 9.948470e-01             0.9628797
+         countryUnited States countryOther typeTV Show typeWilliam Wyler
+74 min              0.9373513    0.9649294   0.9251373                 1
+84 min              0.9373513    0.9649294   0.9251373               NaN
+A                   0.9373513    0.9649294   0.9251373               NaN
+G                   0.9177101    0.8819049   0.7433832               NaN
+NC-17               0.6748462    0.9909023   0.8759181               NaN
+NR                  0.8671429    0.8824241   0.9139232                 1
+PG                  0.8824326    0.8840166   0.6601863                 1
+PG-13               0.9915997    0.8205597   0.5792268                 1
+R                   0.9024007    0.8681500   0.7934528                 1
+TV-14               0.8871456    0.8568540   0.6888568                 1
+TV-G                0.8085963    0.9301643   0.6814640                 1
+TV-MA               0.8723643    0.8686075   0.7043117                 1
+TV-PG               0.8542472    0.8913811   0.6925791                 1
+TV-Y                0.8207864    0.9206090   0.6312367               NaN
+TV-Y7               0.8774929    0.8958978   0.6273272                 1
+TV-Y7-FV            0.7122907    0.9628581   0.7771923               NaN
+UR                  0.9544165    0.8154601   0.8715068               NaN</code></pre>
+</div>
+</div>
+<p>Interpretation of the output above:</p>
+<p>Each row in your output corresponds to a different rating category’s model coefficients for the predictors country and type.</p>
+<p>p-values for each coefficient tell you whether the effect of that predictor (e.g., country= France or type= TV Show) on the likelihood of a Netflix title having a particular rating is statistically significant.</p>
+<p>Significant p-values (typically &lt; 0.05) indicate that the corresponding coefficient significantly affects the rating category, adjusting for other factors in the model.</p>
+<p>For instance, if the country of Mexico has a p-value less than 0.05 for the rating ‘NR’, it means that being from Mexico is a significant predictor of a title having an ‘NR’ rating compared to the baseline rating category, given all other factors constant.</p>
+<p>Coefficients with large p-values suggest that those variables do not significantly predict the rating outcome when controlling for other variables.</p>
 <p><a href="#fig-result">Figure&nbsp;1</a> shows a scatterplot figure produced by one of the R scripts.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -654,7 +1020,7 @@ div.csl-indent {
 </div>
 </section>
 <section id="full-analysis" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="full-analysis"><span class="header-section-number">3.3</span> Full analysis</h2>
+<h2 data-number="3.3" class="anchored" data-anchor-id="full-analysis"><span class="header-section-number">3.3</span> Full Analysis</h2>
 <p><em>Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.</em></p>
 <p>Example <a href="#tbl-resulttable2">Table&nbsp;2</a> shows a summary of a linear model fit.</p>
 <div class="cell">

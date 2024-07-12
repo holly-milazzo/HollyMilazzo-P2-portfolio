@@ -191,8 +191,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p>In this exercise, I recreated a series of pie charts which were originally presented in an exploratory data analysis (EDA) on Netflix movies and TV shows and used Python to develop. The original visualizations, found here <a href="https://fivethirtyeight.com/features/inside-the-political-donation-history-of-wealthy-sports-owners/">Link</a>, focused on analyzing content distribution from various countries, emphasizing a predominant presence of TV shows in Japan and South Korea.</p>
-<p>Instead of focusing solely on these regions, I chose to highlight the top 10 countries in the Netflix dataset. By leveraging R’s ggplot2 library, I replicated these charts to explore similar insights, highlighting the proportional distribution of movies versus TV shows across different countries within the dataset. I also use ChatGPT for assistance on converting Python code to R.</p>
+<p>In this exercise, I recreated the bar graph that illustrates the share of political donations from team owners in six major sports leagues (NFL, NBA, WNBA, NHL, MLB, and NASCAR) to the Republican and Democratic parties over three election years: 2016, 2018, and 2020 from the FiveThirtyEight page here <a href="https://fivethirtyeight.com/features/inside-the-political-donation-history-of-wealthy-sports-owners/">Link</a>. The graph shows a significant majority of donations going to the Republican party in all three years. The annotation highlights that Giants owner Charles Johnson’s contributions constitute a substantial portion of the total Republican donations, underscoring the influence of individual donors in political contributions.</p>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: package 'dplyr' was built under R version 4.3.3</code></pre>
@@ -286,6 +285,9 @@ chr (7): X1, X2, X3, X4, X5, X6, X7
 <p><img src="presentation-exercise_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Table: Partisan Contributions by League</p>
+<p>The table breaks down the total political contributions from owners and commissioners in six sports leagues (MLB, NBA, NHL, NFL, WNBA, and NASCAR) to the Republican and Democratic parties from 2016 to 2020. It reveals that MLB owners have donated the most overall, with significant amounts going to both parties, but predominantly to Republicans. The table provides a clear comparison of partisan contributions across different leagues, highlighting the disparity in political support within the sports industry.</p>
+<p>Both visuals emphasize the substantial financial support sports team owners provide to political parties, predominantly favoring the Republican party, and the considerable influence of a few key donors.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load necessary libraries</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>

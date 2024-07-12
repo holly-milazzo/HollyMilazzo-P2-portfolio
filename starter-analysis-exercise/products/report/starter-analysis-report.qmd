@@ -39,14 +39,12 @@ Utilizing a detailed dataset containing information about Netflix titles, we con
 
 {{< pagebreak >}}
 
-
 ## General Background Information
-
 
 The intent of this analysis is to provide insights into how regional production practices and content types align with age rating distributions, offering valuable information for Netflix's content acquisition and compliance strategies.
 This research highlights the importance of understanding content rating trends to better cater to diverse audiences and ensure appropriate content delivery.
 
-## Description of data and data source 
+## Description of data and data source
 
 Data is on Netflix Movies and TV Shows from Kaggle.com site.
 The description says: "The Netflix Titles dataset is a comprehensive compilation of movies and TV shows available on Netflix, covering various aspects such as the title type, director, cast, country of production, release year, rating, duration, genres (listed in), and a brief description. This dataset is instrumental for analyzing trends in Netflix content, understanding genre popularity, and examining the distribution of content across different regions and time periods"
@@ -96,25 +94,33 @@ Examples of reproducible research projects can for instance be found in [@mckay2
 
 *Describe your methods. That should describe the data, the cleaning processes, and the analysis approaches. You might want to provide a shorter description here and all the details in the supplement.*
 
-I will be using EDA initially and from there possibly branching out into some hypothesis testing using Chi-Square or regression to see if there is any association between genre and retention.
+I will be using EDA initially and from there branching out into some hypothesis testing using Multinomial Logistic Regression to see if there is any association between country, content type, and rating.
 
-## Data aquisition
+## Data Acquisition
 
+I imported the data for Netflix Movies and TV Shows which was available on Kaggle.com site.
+My raw data file is available through file path folders: starter-analysis-exercise \> data \> raw-data \> netflix_titles.xlsx
 
-I imported the data for Netflix Movies and TV Shows which was available on Kaggle.com site. My raw data file is available through file path folders: starter-analysis-exercise > data > raw-data > netflix_titles.xlsx
+## Data Import and Cleaning
 
-## Data import and cleaning
-
-The file path to my code file for cleaning my dataset is: starter-analysis-exercise > code > processing-code > processingfile
+The file path to my code file for cleaning my dataset is: starter-analysis-exercise \> code \> processing-code \> processingfile
 
 First I imported the data...
+
 ```{r}
 # Important
 data_location <- here::here("starter-analysis-exercise","data","raw-data","exampledata.xlsx")
 rawdata <- readxl::read_excel(data_location)
 ```
 
-here are some of the initial cleaning techniques...
+here are some of the initial cleaning techniques and a few reasons why I chose to do them:
+
+-   For the country column, I filled missing values with the mode (most frequently occurring country).
+
+-   Converted the date_added to a Date format as a crucial step for any potential time series or date-related analysis.
+
+-   Converted type to a factor since I am planning on performing statistical tests and/or modeling that may need categorical input features.
+
 ```{r}
 # Handling missing values
 
@@ -124,8 +130,11 @@ rawdata$director[is.na(rawdata$director)] <- "Unknown"
 mode_country <- names(sort(table(rawdata$country), decreasing = TRUE))[1]
 rawdata$country[is.na(rawdata$country)] <- mode_country
 
-# Converting date formats
+# Safe conversion of date formats with error handling
 rawdata$date_added <- as.Date(rawdata$date_added, format = "%m/%d/%Y")
+if(any(is.na(rawdata$date_added))) {
+  warning("There were errors in date conversion. Check date formats.")
+}
 
 # Standardizing categorical variables
 
@@ -135,8 +144,8 @@ rawdata$type <- as.factor(rawdata$type)
 head(rawdata)
 ```
 
-
 I also needed to do some clean up when it came to content 'type' as it included unwanted values...
+
 ```{r}
 # Remove rows where 'type' is "William Wyler" or NA
 cleaned_data <- rawdata[rawdata$type != "William Wyler" & rawdata$type != "Unknown" & !is.na(rawdata$type), ]
@@ -144,25 +153,119 @@ cleaned_data <- rawdata[rawdata$type != "William Wyler" & rawdata$type != "Unkno
 
 ```
 
+```{r}
+summary(cleaned_data)
+```
+
 *Write code that reads in the file and cleans it so it's ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g. as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along.*
 
-
-## Statistical analysis
+## Statistical Analysis
 
 *Explain anything related to your statistical analyses.*
 
 The relevant variables I'll be using during my statistical analysis to determine how regional production practices and content types align with age rating distributions will be: Country, Type, and Rating.
 
+Let's double check if there is any other missing data in my cleaned_data before I perform my analysis... nothing significant in 3 variables I'll be using.
+
 ```{r}
-summary(cleaned_data)
+# Calculate the number of missing values for each column in cleaned_data
+missing_data_summary <- sapply(cleaned_data, function(x) sum(is.na(x)))
+
+# Print the summary of missing data
+print(missing_data_summary)
+
 ```
 
+I also want to check for any outliers as well...
+
+```{r, message=FALSE}
+# Create a boxplot for each numeric variable in the dataframe
+numeric_vars <- sapply(cleaned_data, is.numeric)
+if(any(numeric_vars)) {
+  # Filter only numeric columns
+  numeric_data <- cleaned_data[, numeric_vars]
+
+  # Melt the data for easy plotting with ggplot2
+  library(reshape2)
+  long_data <- melt(numeric_data)
+
+  # Plot
+  ggplot(long_data, aes(x = variable, y = value)) +
+    geom_boxplot(outlier.colour = "red", outlier.shape = 1) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(title = "Boxplot for Each Numeric Variable", x = "Variables", y = "Values")
+} else {
+  print("No numeric variables found for plotting.")
+}
+```
+
+Given my hypothesis, which aims to explore how the type of content (Movie or TV Show) and the country of origin influence the distribution of age ratings on Netflix titles, regression testing does not seem like the best testing method because I using 2 categorical variables (Type and Rating) as target variables.
+My 'rating' variable is not ordinal either which means we'd also leave out performing logistic regression.
+
+I believe the best testing methods in this case are either Chi-square (to test independence) or Multinomial Logistic Regression.
+MLR would be useful since the 'Rating' has multiple categories without order and would allow me to model the probability of each rating category as a function of 'Type' and 'Country'.
+
+I will need install the following packages for the next part of my analysis
+
+```{r}
+library(nnet)
+library(forcats)
+```
+
+Initially, when I ran the model it gave an error due to the complexity in the number of parameters it created based on the variations of categories I have in my variables.
+ChatGPT recommended I use the code below to create a decay term for regularization, which helps to manage the complexity of the model by shrinking the regression coefficients.
+
+With the convergence of my multinomial logistic regression as indicated by "converged" in the output below, the next steps involve interpreting the model's results and using them to validate my hypothesis or make further decisions.
+
+```{r}
+# Assuming 'Country' has many categories, we reduce them
+cleaned_data$country <- fct_lump_n(cleaned_data$country, n = 10)  # Keeps the top 10 countries, others lumped into "Other"
+cleaned_data$country <- factor(cleaned_data$country)
+
+# Fit the model with increased decay for regularization
+
+fit <- multinom(type ~ country + rating, data = cleaned_data, MaxNWts = 10000, decay = 0.1)
+
+```
+
+Now to run my multinomial model....
+
+```{r}
+# Ensure that 'Country', 'Type', and 'Rating' are factors
+cleaned_data$country <- as.factor(cleaned_data$country)
+cleaned_data$type <- as.factor(cleaned_data$type)
+cleaned_data$rating <- as.factor(cleaned_data$rating)
+
+# Multinomial logistic regression
+multinom_model <- multinom(rating ~ country + type, data = cleaned_data)
+
+# Summary of the model
+summary(multinom_model)
+
+# To get probabilities
+probabilities <- predict(multinom_model, type = "probs")
+
+# Viewing the first few rows of probabilities
+head(probabilities)
+```
 
 {{< pagebreak >}}
 
 # Results
 
-## Exploratory/Descriptive analysis
+Interpretation of Multinomial Logistic Regression model results
+
+The results from the MLR provided a complex but informative view into how different countries and types of content (e.g., Movies vs. TV Shows) relate to the ratings of Netflix titles.
+Here's a breakdown and interpretation of the results:
+
+The model successfully converged after 100 iterations, indicating that the algorithm was able to find a stable solution.
+The final value (14611.228013) of the deviance indicates the fit of the model to my data.
+
+The coefficients for each level of the factors (Country, Type) show how each category relates to the probability of the content having a specific rating compared to the baseline category, however, without knowing the standard errors or p-values it's challenging to discuss the statistical significance of each coefficient - only the magnitude and direction (positive or negative) of the coefficients can provide insights at this point.
+
+## Exploratory/Descriptive Analysis
+
+Distribution between Movies and TV Shows:
 
 ```{r}
 # Perform the group_by and summarise operations
@@ -178,7 +281,8 @@ barplot(height = type_distribution$count,
         ylab = "Count",
         las = 1) # las = 1 makes axis labels horizontal
 ```
-We see from the distribution that it appears movies are being streamed substantially more than TV shows, but to get a better sense of this let's represent it as a percentage instead 
+
+We see from the distribution that it appears movies are being streamed substantially more than TV shows, but to get a better sense of this let's represent it as a percentage instead
 
 ```{r}
 type_distribution <- aggregate(. ~ type, data = cleaned_data, FUN = length)
@@ -193,6 +297,7 @@ pie(type_distribution$count,
     col = c("purple", "orange"),
     main = "Percentage of Movies vs TV Shows")
 ```
+
 Now I'd like to see which countries the Movie/TV show content originate from
 
 ```{r}
@@ -217,7 +322,7 @@ p <- ggplot(country_df, aes(x = reorder(country, -count), y = count)) +
 print(p)
 ```
 
-
+Let's see the distribution of ratings:
 
 ```{r}
 # Plot the distribution of ratings
@@ -227,8 +332,6 @@ ggplot(cleaned_data, aes(x = rating)) +
        x = "Rating", y = "Count") +
   theme_minimal()
 ```
-
-
 
 ```{r}
 # Split the 'listed_in' column into individual genres
@@ -256,7 +359,7 @@ ggplot(data = genre_counts, aes(x = reorder(genres, Freq), y = Freq)) +
   theme_minimal()
 ```
 
-
+Given that Netflix launched at the end of August in 1997 as a DVD rental service this distribution makes sense:
 
 ```{r}
 # Plot the count of titles by release year
@@ -266,8 +369,6 @@ ggplot(cleaned_data, aes(x = release_year)) +
        x = "Release Year", y = "Count") +
   theme_minimal()
 ```
-
-
 
 ```{r}
 # Count occurrences of each country and type
@@ -285,8 +386,6 @@ percentage_data <- ungroup(grouped_data)
 # Show percentage_data
 percentage_data
 ```
-
-
 
 ```{r}
 # Calculate total count of each country
@@ -317,24 +416,6 @@ pie_plot <- ggplot(top_10_data, aes(x = "", y = n, fill = type)) +
 print(pie_plot)
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 *Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project.*
 
 @tbl-summarytable shows a summary of the data.
@@ -354,9 +435,45 @@ resulttable=readRDS("../../results/tables-files/summarytable.rds")
 knitr::kable(resulttable)
 ```
 
-## Basic statistical analysis
+## Basic Statistical Analysis
 
 *To get some further insight into your data, if reasonable you could compute simple statistics (e.g. simple models with 1 predictor) to look for associations between your outcome(s) and each individual predictor variable. Though note that unless you pre-specified the outcome and main exposure, any "p\<0.05 means statistical significance" interpretation is not valid.*
+
+The following code below calculates p-values for the coefficients of a multinomial logistic regression model (created in section above on "Statistical Analysis") and prints these values.
+The model was fit to predict the rating of Netflix titles based on the country and type (Movie or TV Show).
+
+```{r}
+
+model <- nnet::multinom(rating ~ country + type, data = cleaned_data)
+
+# Summary of the model to get coefficients and standard errors
+model_summary <- summary(model)
+
+# Calculate z-values
+z_values <- coef(model_summary) / model_summary$standard.errors
+
+# Get p-values from z-values
+p_values <- 2 * pnorm(abs(z_values), lower.tail = FALSE)
+
+# View the p-values
+print(p_values)
+```
+
+Interpretation of the output above:
+
+Each row in your output corresponds to a different rating category's model coefficients for the predictors country and type.
+
+p-values for each coefficient tell you whether the effect of that predictor (e.g., country= France or type= TV Show) on the likelihood of a Netflix title having a particular rating is statistically significant.
+
+Significant p-values (typically \< 0.05) indicate that the corresponding coefficient significantly affects the rating category, adjusting for other factors in the model.
+
+For instance, if the country of Mexico has a p-value less than 0.05 for the rating 'NR', it means that being from Mexico is a significant predictor of a title having an 'NR' rating compared to the baseline rating category, given all other factors constant.
+
+Coefficients with large p-values suggest that those variables do not significantly predict the rating outcome when controlling for other variables.
+
+
+
+
 
 @fig-result shows a scatterplot figure produced by one of the R scripts.
 
@@ -367,7 +484,7 @@ knitr::kable(resulttable)
 knitr::include_graphics(here("starter-analysis-exercise","results","figures","height-weight-stratified.png"))
 ```
 
-## Full analysis
+## Full Analysis
 
 *Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.*
 
