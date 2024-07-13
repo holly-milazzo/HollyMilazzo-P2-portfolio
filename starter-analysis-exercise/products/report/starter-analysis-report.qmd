@@ -322,15 +322,7 @@ p <- ggplot(country_df, aes(x = reorder(country, -count), y = count)) +
 print(p)
 ```
 
-Let's see the distribution of ratings:
-
-```{r}
-# Plot the distribution of ratings
-ggplot(cleaned_data, aes(x = rating)) +
-  geom_bar(fill = "#4E79A7") +
-  labs(title = "Distribution of Ratings",
-       x = "Rating", y = "Count") +
-  theme_minimal()
+```{}
 ```
 
 ```{r}
@@ -369,6 +361,8 @@ ggplot(cleaned_data, aes(x = release_year)) +
        x = "Release Year", y = "Count") +
   theme_minimal()
 ```
+
+Let's also explore what the content consumption is like between countries...
 
 ```{r}
 # Count occurrences of each country and type
@@ -472,7 +466,16 @@ For instance, if the country of Mexico has a p-value less than 0.05 for the rati
 Coefficients with large p-values suggest that those variables do not significantly predict the rating outcome when controlling for other variables.
 
 
+I want to also get an idea of the distribution of content ratings with Netflix...
 
+```{r}
+# Plot for 'rating'
+ggplot(data = cleaned_data, aes(x = rating, fill = rating)) +
+  geom_bar() +
+  labs(title = "Distribution of Netflix Title Ratings", x = "Rating", y = "Count") +
+  theme_minimal()
+
+```
 
 
 @fig-result shows a scatterplot figure produced by one of the R scripts.
@@ -488,15 +491,49 @@ knitr::include_graphics(here("starter-analysis-exercise","results","figures","he
 
 *Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.*
 
-Example @tbl-resulttable2 shows a summary of a linear model fit.
+```{r, message=FALSE}
+library(tidyr)
+
+# Aggregating data to get count of ratings per country
+ratings_by_country <- count(cleaned_data, country, rating)
+
+# Group by country and calculate total
+ratings_by_country <- group_by(ratings_by_country, country)
+ratings_by_country <- mutate(ratings_by_country, total = sum(n))
+ratings_by_country <- ungroup(ratings_by_country)
+
+# Arrange in descending order by total and select top entries
+ratings_by_country <- arrange(ratings_by_country, desc(total))
+ratings_by_country <- head(ratings_by_country, 100)  # Adjust this to select a number of top entries or a specific threshold
+
+# Spreading data for better visualization handling
+ratings_by_country_spread <- spread(ratings_by_country, key = rating, value = n, fill = 0)
+
+# View the aggregated data
+head(ratings_by_country_spread)
+
+
+```
+
 
 ```{r}
-#| label: tbl-resulttable2
-#| tbl-cap: "Linear model fit table."
-#| echo: FALSE
-resulttable2 = readRDS(here("starter-analysis-exercise","results","tables-files","resulttable2.rds"))
-knitr::kable(resulttable2)
+
+# Plotting the distribution of ratings by country
+ggplot(ratings_by_country, aes(x = country, y = n, fill = rating)) +
+  geom_bar(stat = "identity", position = "fill") +  # 'fill' stacks and normalizes the bar heights to 1
+  labs(title = "Distribution of Ratings by Country",
+       x = "Country",
+       y = "Proportion",
+       fill = "Rating") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
+
 ```
+
+
+Example @tbl-resulttable2 shows a summary of a linear model fit.
+
+
 
 {{< pagebreak >}}
 

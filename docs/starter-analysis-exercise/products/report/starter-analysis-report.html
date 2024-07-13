@@ -688,18 +688,7 @@ AIC: 29630.46 </code></pre>
 <p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Let’s see the distribution of ratings:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution of ratings</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cleaned_data, <span class="fu">aes</span>(<span class="at">x =</span> rating)) <span class="sc">+</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill =</span> <span class="st">"#4E79A7"</span>) <span class="sc">+</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Ratings"</span>,</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Rating"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
+<pre><code></code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the 'listed_in' column into individual genres</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>genres <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">strsplit</span>(cleaned_data<span class="sc">$</span>listed_in, <span class="st">", "</span>))</span>
@@ -725,7 +714,7 @@ AIC: 29630.46 </code></pre>
 <span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">family =</span> <span class="st">"sans"</span>)) <span class="sc">+</span>  <span class="co"># Rotate x-axis labels</span></span>
 <span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Given that Netflix launched at the end of August in 1997 as a DVD rental service this distribution makes sense:</p>
@@ -741,9 +730,10 @@ AIC: 29630.46 </code></pre>
 (`stat_bin()`).</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Let’s also explore what the content consumption is like between countries…</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count occurrences of each country and type</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>count_data <span class="ot">&lt;-</span> <span class="fu">count</span>(cleaned_data, country, type)</span>
@@ -804,7 +794,7 @@ AIC: 29630.46 </code></pre>
 <span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the plot</span></span>
 <span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(pie_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p><em>Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project.</em></p>
@@ -1007,6 +997,17 @@ UR                  0.9544165    0.8154601   0.8715068               NaN</code><
 <p>Significant p-values (typically &lt; 0.05) indicate that the corresponding coefficient significantly affects the rating category, adjusting for other factors in the model.</p>
 <p>For instance, if the country of Mexico has a p-value less than 0.05 for the rating ‘NR’, it means that being from Mexico is a significant predictor of a title having an ‘NR’ rating compared to the baseline rating category, given all other factors constant.</p>
 <p>Coefficients with large p-values suggest that those variables do not significantly predict the rating outcome when controlling for other variables.</p>
+<p>I want to also get an idea of the distribution of content ratings with Netflix…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot for 'rating'</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> cleaned_data, <span class="fu">aes</span>(<span class="at">x =</span> rating, <span class="at">fill =</span> rating)) <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Netflix Title Ratings"</span>, <span class="at">x =</span> <span class="st">"Rating"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 <p><a href="#fig-result">Figure&nbsp;1</a> shows a scatterplot figure produced by one of the R scripts.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -1022,55 +1023,56 @@ UR                  0.9544165    0.8154601   0.8715068               NaN</code><
 <section id="full-analysis" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="full-analysis"><span class="header-section-number">3.3</span> Full Analysis</h2>
 <p><em>Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.</em></p>
-<p>Example <a href="#tbl-resulttable2">Table&nbsp;2</a> shows a summary of a linear model fit.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregating data to get count of ratings per country</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>ratings_by_country <span class="ot">&lt;-</span> <span class="fu">count</span>(cleaned_data, country, rating)</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by country and calculate total</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>ratings_by_country <span class="ot">&lt;-</span> <span class="fu">group_by</span>(ratings_by_country, country)</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>ratings_by_country <span class="ot">&lt;-</span> <span class="fu">mutate</span>(ratings_by_country, <span class="at">total =</span> <span class="fu">sum</span>(n))</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>ratings_by_country <span class="ot">&lt;-</span> <span class="fu">ungroup</span>(ratings_by_country)</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange in descending order by total and select top entries</span></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>ratings_by_country <span class="ot">&lt;-</span> <span class="fu">arrange</span>(ratings_by_country, <span class="fu">desc</span>(total))</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>ratings_by_country <span class="ot">&lt;-</span> <span class="fu">head</span>(ratings_by_country, <span class="dv">100</span>)  <span class="co"># Adjust this to select a number of top entries or a specific threshold</span></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Spreading data for better visualization handling</span></span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>ratings_by_country_spread <span class="ot">&lt;-</span> <span class="fu">spread</span>(ratings_by_country, <span class="at">key =</span> rating, <span class="at">value =</span> n, <span class="at">fill =</span> <span class="dv">0</span>)</span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a><span class="co"># View the aggregated data</span></span>
+<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ratings_by_country_spread)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 21
+  country     total `66 min` `74 min` `84 min`     A     G `NC-17`    NR    PG
+  &lt;fct&gt;       &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 Canada        181        0        0        0     0     1       1     2     8
+2 France        124        0        0        0     0     0       0     0     1
+3 India         972        0        0        0     0     0       0     4     2
+4 Japan         245        0        0        0     0     0       0     0     4
+5 South Korea   200        0        0        0     0     0       0     3     0
+6 Spain         145        0        0        0     0     0       0     1     1
+# ℹ 11 more variables: `PG-13` &lt;dbl&gt;, R &lt;dbl&gt;, `TV-14` &lt;dbl&gt;, `TV-G` &lt;dbl&gt;,
+#   `TV-MA` &lt;dbl&gt;, `TV-PG` &lt;dbl&gt;, `TV-Y` &lt;dbl&gt;, `TV-Y7` &lt;dbl&gt;,
+#   `TV-Y7-FV` &lt;dbl&gt;, UR &lt;dbl&gt;, `&lt;NA&gt;` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the distribution of ratings by country</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ratings_by_country, <span class="fu">aes</span>(<span class="at">x =</span> country, <span class="at">y =</span> n, <span class="at">fill =</span> rating)) <span class="sc">+</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"fill"</span>) <span class="sc">+</span>  <span class="co"># 'fill' stacks and normalizes the bar heights to 1</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Ratings by Country"</span>,</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Country"</span>,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Proportion"</span>,</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Rating"</span>) <span class="sc">+</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))  <span class="co"># Rotate x-axis labels for readability</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="tbl-resulttable2" class="anchored">
-<table class="table table-sm table-striped small">
-<caption>Table&nbsp;2: Linear model fit table.</caption>
-<thead>
-<tr class="header">
-<th style="text-align: left;">term</th>
-<th style="text-align: right;">estimate</th>
-<th style="text-align: right;">std.error</th>
-<th style="text-align: right;">statistic</th>
-<th style="text-align: right;">p.value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">149.2726967</td>
-<td style="text-align: right;">23.3823360</td>
-<td style="text-align: right;">6.3839942</td>
-<td style="text-align: right;">0.0013962</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Weight</td>
-<td style="text-align: right;">0.2623972</td>
-<td style="text-align: right;">0.3512436</td>
-<td style="text-align: right;">0.7470519</td>
-<td style="text-align: right;">0.4886517</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">GenderM</td>
-<td style="text-align: right;">-2.1244913</td>
-<td style="text-align: right;">15.5488953</td>
-<td style="text-align: right;">-0.1366329</td>
-<td style="text-align: right;">0.8966520</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">GenderO</td>
-<td style="text-align: right;">-4.7644739</td>
-<td style="text-align: right;">19.0114155</td>
-<td style="text-align: right;">-0.2506112</td>
-<td style="text-align: right;">0.8120871</td>
-</tr>
-</tbody>
-</table>
+<p><img src="starter-analysis-report_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</div>
+<p>Example <strong>?@tbl-resulttable2</strong> shows a summary of a linear model fit.</p>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
