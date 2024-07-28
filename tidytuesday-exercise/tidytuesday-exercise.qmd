@@ -3,3 +3,127 @@ title: "Tidy Tuesday Exercise"
 ---
 
 Placeholder file for the future Tidy Tuesday exercise.
+```{r}
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+
+```
+
+```{r}
+if (!requireNamespace("tidytuesdayR", quietly = TRUE)) {
+    install.packages("tidytuesdayR")
+}
+library(tidytuesdayR)
+
+```
+
+```{r}
+install.packages("tidytuesdayR")
+
+tuesdata <- tidytuesdayR::tt_load('2024-07-23')
+```
+
+PART 1: Load, wrangle and explore the data.
+
+```{r}
+head(tuesdata)
+```
+
+```{r}
+summary(tuesdata)
+```
+Checking for missing values
+
+```{r}
+sapply(tuesdata, function(df) sum(is.na(df)))
+
+```
+Running some summary statisics
+
+```{r}
+sapply(tuesdata, function(df) if(is.data.frame(df)) { summary(df) } else { NULL })
+
+```
+
+
+Installing some libraries I'll need for EDA
+
+```{r}
+library(ggplot2)
+library(caTools)
+library(lubridate)
+```
+```{r}
+
+ggplot(tuesdata$auditions, aes(x = season)) +
+  geom_histogram(binwidth = 1, fill = "#2c3e50", color = "#ecf0f1", alpha = 0.8) +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Auditions by Season",
+    x = "Season",
+    y = "Count"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 10),
+    panel.grid.major = element_line(color = "#bdc3c7"),
+    panel.grid.minor = element_blank()
+  )
+
+
+```
+
+Is there any relationship, let's say, between ratings and 
+
+```{r}
+
+ggplot(tuesdata$ratings, aes(x = viewers_in_millions, y = season)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Relationship between Viewer and Season", x = "viewers_in_millions", y = "season")
+
+```
+
+
+It appears from this output that Season 5 was a peak in viewership. From what Wikipedia says: The fifth season of American Idol began on January 17, 2006, and concluded on May 24, 2006. Paula Abdul, Simon Cowell, and Randy Jackson returned as judges, while Ryan Seacrest returned as host. Taylor Hicks was named the winner, while Katharine McPhee was the runner-up. It also says that Season 6 set a new record of "74 million votes were cast in the finale round, and a new record of 609 million votes were cast in the entire season".
+
+PART 2: Once you understand the data sufficiently, formulate a question/hypothesis.
+
+Hypothesis: 
+
+The number of auditions per season is positively correlated with the ratings of the show for that season. Higher audition counts might indicate greater public interest, leading to higher viewership and ratings.Greater participation in auditions might also indicate a more engaged viewer base, which could translate to higher viewership numbers when during viewer voting.
+
+
+PART 3: Once you determine the question and thus your outcome and main predictors, further pre-process and clean the data as needed.
+
+First let's merge 'auditions' and 'ratings'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
