@@ -15,10 +15,6 @@ editor:
     wrap: sentence
 ---
 
-The structure below is one possible setup for a data analysis project (including the course project).
-For a manuscript, adjust as needed.
-You don't need to have exactly these sections, but the content covering those sections should be addressed.
-
 This uses MS Word as output format.
 [See here](https://quarto.org/docs/output-formats/ms-word.html) for more information.
 You can switch #to other formats, like html or pdf.
@@ -108,7 +104,6 @@ The file path to my code file for cleaning my dataset is: starter-analysis-exerc
 First I imported the data...
 
 ```{r}
-# Important
 data_location <- here::here("starter-analysis-exercise","data","raw-data","exampledata.xlsx")
 rawdata <- readxl::read_excel(data_location)
 ```
@@ -157,7 +152,7 @@ cleaned_data <- rawdata[rawdata$type != "William Wyler" & rawdata$type != "Unkno
 summary(cleaned_data)
 ```
 
-*Write code that reads in the file and cleans it so it's ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g. as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along.*
+
 
 ## Statistical Analysis
 
@@ -199,8 +194,7 @@ if(any(numeric_vars)) {
 }
 ```
 
-Given my hypothesis, which aims to explore how the type of content (Movie or TV Show) and the country of origin influence the distribution of age ratings on Netflix titles, regression testing does not seem like the best testing method because I using 2 categorical variables (Type and Rating) as target variables.
-My 'rating' variable is not ordinal either which means we'd also leave out performing logistic regression.
+Given my hypothesis, which aims to explore how the type of content (Movie or TV Show) and the country of origin influence the distribution of age ratings on Netflix titles, regression testing does not seem like the best testing method because I using 2 categorical variables (Type and Rating) as target variables.My 'rating' variable is not ordinal either which means we'd also leave out performing logistic regression.
 
 I believe the best testing methods in this case are either Chi-square (to test independence) or Multinomial Logistic Regression.
 MLR would be useful since the 'Rating' has multiple categories without order and would allow me to model the probability of each rating category as a function of 'Type' and 'Country'.
@@ -213,6 +207,7 @@ library(forcats)
 ```
 
 Initially, when I ran the model it gave an error due to the complexity in the number of parameters it created based on the variations of categories I have in my variables.
+
 ChatGPT recommended I use the code below to create a decay term for regularization, which helps to manage the complexity of the model by shrinking the regression coefficients.
 
 With the convergence of my multinomial logistic regression as indicated by "converged" in the output below, the next steps involve interpreting the model's results and using them to validate my hypothesis or make further decisions.
@@ -231,23 +226,27 @@ fit <- multinom(type ~ country + rating, data = cleaned_data, MaxNWts = 10000, d
 Now to run my multinomial model....
 
 ```{r}
-# Ensure that 'Country', 'Type', and 'Rating' are factors
 cleaned_data$country <- as.factor(cleaned_data$country)
 cleaned_data$type <- as.factor(cleaned_data$type)
 cleaned_data$rating <- as.factor(cleaned_data$rating)
 
-# Multinomial logistic regression
+
 multinom_model <- multinom(rating ~ country + type, data = cleaned_data)
 
 # Summary of the model
-summary(multinom_model)
+head(multinom_model)
 
-# To get probabilities
+```
+
+
+```{r}
+
 probabilities <- predict(multinom_model, type = "probs")
 
-# Viewing the first few rows of probabilities
 head(probabilities)
 ```
+
+
 
 {{< pagebreak >}}
 
@@ -322,45 +321,6 @@ p <- ggplot(country_df, aes(x = reorder(country, -count), y = count)) +
 print(p)
 ```
 
-```{}
-```
-
-```{r}
-# Split the 'listed_in' column into individual genres
-genres <- unlist(strsplit(cleaned_data$listed_in, ", "))
-genre_table <- as.data.frame(table(genres))
-
-# Arrange by frequency in descending order and select top 10
-genre_counts <- genre_table[order(-genre_table$Freq), ]
-genre_counts <- genre_counts[1:10, ]
-
-# Plot the top 10 genres
-library(ggplot2)
-
-# Plotting the bar chart
-ggplot(data = genre_counts, aes(x = reorder(genres, Freq), y = Freq)) +
-  geom_bar(stat = "identity", fill = "#4E79A7") +
-  geom_text(aes(label = Freq), 
-            position = position_stack(vjust = 0.5), 
-            color = "white", 
-            size = 4, 
-            family = "sans") +  # Adjust position and styling of labels
-  labs(title = "Top 10 Genres",
-       x = "Genre", y = "Count") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 10, family = "sans")) +  # Rotate x-axis labels
-  theme_minimal()
-```
-
-Given that Netflix launched at the end of August in 1997 as a DVD rental service this distribution makes sense:
-
-```{r}
-# Plot the count of titles by release year
-ggplot(cleaned_data, aes(x = release_year)) +
-  geom_histogram(binwidth = 1, fill = "#4E79A7", color = "white") +
-  labs(title = "Count of Titles by Release Year",
-       x = "Release Year", y = "Count") +
-  theme_minimal()
-```
 
 Let's also explore what the content consumption is like between countries...
 
@@ -402,7 +362,7 @@ pie_plot <- ggplot(top_10_data, aes(x = "", y = n, fill = type)) +
   geom_text(aes(label = paste0(round(percentage, 2), "%")),
             position = position_stack(vjust = 0.5), color = "white", size = 4, family = "sans") +  # Adjust text size, color, and font family
   theme_void() +
-  scale_fill_manual(values = c("#5E81AC", "#E19C24"), labels = c("Movie", "TV Show")) +  # Adjust colors and labels
+  scale_fill_manual(values = c("purple", "orange"), labels = c("Movie", "TV Show")) +  # Adjust colors and labels
   theme(legend.position = "bottom", legend.text = element_text(size = 10, family = "sans"), plot.title = element_text(hjust = 0.5, size = 14, family = "sans")) +  # Adjust legend and title text
   labs(fill = "Type", title = "Percentage of Movies vs TV Shows in Top 10 Countries")  # Adjust title
 
@@ -410,9 +370,7 @@ pie_plot <- ggplot(top_10_data, aes(x = "", y = n, fill = type)) +
 print(pie_plot)
 ```
 
-*Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project.*
 
-@tbl-summarytable shows a summary of the data.
 
 Note the loading of the data providing a **relative** path using the `../../` notation.
 (Two dots means a folder up).
@@ -421,147 +379,199 @@ You can also use the `here` R package to create paths.
 See examples of that below.
 **I recommend the `here` package, but I'm showing the other approach here just in case you encounter it.**
 
-```{r}
-#| label: tbl-summarytable
-#| tbl-cap: "Data summary table."
-#| echo: FALSE
-resulttable=readRDS("../../results/tables-files/summarytable.rds")
-knitr::kable(resulttable)
-```
-
 ## Basic Statistical Analysis
 
 *To get some further insight into your data, if reasonable you could compute simple statistics (e.g. simple models with 1 predictor) to look for associations between your outcome(s) and each individual predictor variable. Though note that unless you pre-specified the outcome and main exposure, any "p\<0.05 means statistical significance" interpretation is not valid.*
 
-The following code below calculates p-values for the coefficients of a multinomial logistic regression model (created in section above on "Statistical Analysis") and prints these values.
-The model was fit to predict the rating of Netflix titles based on the country and type (Movie or TV Show).
+Given my hypothesis...
+
+My predictor Variables (Independent Variables):
+
+- type (Movie or TV Show)
+- country (Country of origin)
+
+and my response Variable (Dependent Variable):
+
+- rating (Age rating assigned to Netflix titles)
+
+Let's perform some basic statistics to examine the associations between the outcome variable (rating) and each individual predictor variable (type and country).
+
+```{r}
+# Cross-tabulation of type and rating
+type_rating_table <- table(rawdata$type, rawdata$rating)
+print(type_rating_table)
+```
+
+```{r}
+# Chi-square test of independence
+type_rating_chi2 <- chisq.test(type_rating_table)
+print(type_rating_chi2)
+```
+Interpretation of results:
+
+The chi-square test statistic is very large (9853.7), and the p-value is extremely small (less than 2.2e-16). This indicates that there is a significant association between type and rating. In other words, the type of content (Movie or TV Show) and the rating are not independent; they are related
+
+what about the association between country and rating though...
+
+```{r}
+# Frequency distribution of rating by country
+country_rating_table <- table(rawdata$country, rawdata$rating)
+
+```
 
 ```{r}
 
-model <- nnet::multinom(rating ~ country + type, data = cleaned_data)
-
-# Summary of the model to get coefficients and standard errors
-model_summary <- summary(model)
-
-# Calculate z-values
-z_values <- coef(model_summary) / model_summary$standard.errors
-
-# Get p-values from z-values
-p_values <- 2 * pnorm(abs(z_values), lower.tail = FALSE)
-
-# View the p-values
-print(p_values)
-```
-
-Interpretation of the output above:
-
-Each row in your output corresponds to a different rating category's model coefficients for the predictors country and type.
-
-p-values for each coefficient tell you whether the effect of that predictor (e.g., country= France or type= TV Show) on the likelihood of a Netflix title having a particular rating is statistically significant.
-
-Significant p-values (typically \< 0.05) indicate that the corresponding coefficient significantly affects the rating category, adjusting for other factors in the model.
-
-For instance, if the country of Mexico has a p-value less than 0.05 for the rating 'NR', it means that being from Mexico is a significant predictor of a title having an 'NR' rating compared to the baseline rating category, given all other factors constant.
-
-Coefficients with large p-values suggest that those variables do not significantly predict the rating outcome when controlling for other variables.
-
-
-I want to also get an idea of the distribution of content ratings with Netflix...
-
-```{r}
-# Plot for 'rating'
-ggplot(data = cleaned_data, aes(x = rating, fill = rating)) +
-  geom_bar() +
-  labs(title = "Distribution of Netflix Title Ratings", x = "Rating", y = "Count") +
-  theme_minimal()
+country_rating_chi2 <- chisq.test(country_rating_table)
+print(country_rating_chi2)
 
 ```
+Interpretation of results:
 
+It appears, again, that the chi-square test statistic is very large (26495), and the p-value is extremely small (less than 2.2e-16). Which indicates that there is a significant association between country and rating. In other words, the country of origin and the rating are not independent; they are related.
 
-@fig-result shows a scatterplot figure produced by one of the R scripts.
+Given the high association between all my variables (type, country, and rating), I will do some a bit more exploring. 
 
-```{r}
-#| label: fig-result
-#| fig-cap: "Height and weight stratified by gender."
-#| echo: FALSE
-knitr::include_graphics(here("starter-analysis-exercise","results","figures","height-weight-stratified.png"))
-```
-
-## Full Analysis
-
-*Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here.*
-
-```{r, message=FALSE}
-library(tidyr)
-
-# Aggregating data to get count of ratings per country
-ratings_by_country <- count(cleaned_data, country, rating)
-
-# Group by country and calculate total
-ratings_by_country <- group_by(ratings_by_country, country)
-ratings_by_country <- mutate(ratings_by_country, total = sum(n))
-ratings_by_country <- ungroup(ratings_by_country)
-
-# Arrange in descending order by total and select top entries
-ratings_by_country <- arrange(ratings_by_country, desc(total))
-ratings_by_country <- head(ratings_by_country, 100)  # Adjust this to select a number of top entries or a specific threshold
-
-# Spreading data for better visualization handling
-ratings_by_country_spread <- spread(ratings_by_country, key = rating, value = n, fill = 0)
-
-# View the aggregated data
-head(ratings_by_country_spread)
-
-
-```
+First, I could visually explore the association between my categorical variables using a stacked bar chart, and then run a random forest model to understand the importance of using different predictors and their relationships
 
 
 ```{r}
 
-# Plotting the distribution of ratings by country
-ggplot(ratings_by_country, aes(x = country, y = n, fill = rating)) +
-  geom_bar(stat = "identity", position = "fill") +  # 'fill' stacks and normalizes the bar heights to 1
-  labs(title = "Distribution of Ratings by Country",
-       x = "Country",
-       y = "Proportion",
-       fill = "Rating") +
+rawdata$country <- sapply(strsplit(rawdata$country, ", "), `[`, 1)
+
+
+unique(rawdata$country)
+```
+
+
+```{r}
+filtered_data <- rawdata %>%
+  filter(!is.na(type))
+
+# Optionally, filter the data to include only a subset of countries
+# For example, top 10 countries by count of titles
+top_countries <- filtered_data %>%
+  count(country, sort = TRUE) %>%
+  top_n(10, n) %>%
+  pull(country)
+
+filtered_data <- filtered_data %>%
+  filter(country %in% top_countries)
+
+# Create the bar chart
+ggplot(filtered_data, aes(x = country, fill = rating)) +
+  geom_bar(position = "fill") +
+  facet_wrap(~ type, scales = "free_y") +
+  labs(title = "Proportion of Ratings by Type and Country", x = "Country", y = "Proportion") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom")
+```
 
+Before getting started with our random forest we'll need to install some necessary packages
+
+```{r}
+library(caret)
+library(randomForest)
+library(mice)
+```
+
+In this step we convert our categorical variables into factors:
+
+```{r}
+filtered_data$type <- as.factor(filtered_data$type)
+filtered_data$country <- as.factor(filtered_data$country)
+filtered_data$rating <- as.factor(filtered_data$rating)
 ```
 
 
-Example @tbl-resulttable2 shows a summary of a linear model fit.
+In this step we somewhat use imputation (replace 'na' in our data with mode):
+
+```{r}
+calculate_mode <- function(x) {
+  uniq_x <- unique(x)
+  uniq_x[which.max(tabulate(match(x, uniq_x)))]
+}
+
+# Function to impute missing values
+impute_missing <- function(df) {
+  df[] <- lapply(df, function(col) {
+    if (is.numeric(col)) {
+      # Impute numeric columns with median
+      col[is.na(col)] <- median(col, na.rm = TRUE)
+    } else {
+      # Impute categorical columns with mode
+      col[is.na(col)] <- calculate_mode(col)
+    }
+    return(col)
+  })
+  return(df)
+}
+```
+
+
+Now to split the data into training and test sets...
+
+```{r}
+imputed_data <- impute_missing(filtered_data)
+
+
+set.seed(123)
+train_index <- createDataPartition(imputed_data$rating, p = 0.8, list = FALSE)
+train_data <- imputed_data[train_index, ]
+test_data <- imputed_data[-train_index, ]
+```
+
+Now to train the random forest model...
+
+```{r}
+set.seed(321) 
+rf_model <- randomForest(rating ~ type + country, data = train_data, ntree = 500, mtry = 2, importance = TRUE)
+
+
+print(rf_model)
+```
+
+And lastly, let's evaluate the performance of our random forest:
+
+```{r}
+predictions <- predict(rf_model, test_data)
+confusion_matrix <- confusionMatrix(predictions, test_data$rating)
+
+head(confusion_matrix)
+```
+
+
+```{r}
+varImpPlot(rf_model)
+```
+
+
+
+## Interpretation
+
+
+The results from the random forest model's performance are summarized in the confusion matrix and accompanying statistics. The overall accuracy of the model is 37.62%, indicating that it correctly classified approximately 38% of the instances. This accuracy is slightly better than the No Information Rate (NIR) of 34.21%, which represents the accuracy we would get by always predicting the most frequent class. The confidence interval for the model's accuracy ranges from 35.08% to 40.22%, suggesting the true accuracy lies within this interval. The p-value (0.003985) indicates that the model’s accuracy is significantly better than random guessing.
+
+However, the Kappa value of 0.0843 reveals poor agreement between the predicted and actual classifications when accounting for chance. The statistics by class show varying performance across different rating categories. For instance, the sensitivity for "TV-14" is 42.55%, meaning the model correctly identified about 43% of "TV-14" ratings. The specificity for "TV-14" is higher at 88.84%, indicating that the model correctly identified about 89% of non-"TV-14" ratings.
+
+The precision for "TV-14" is 53.10%, meaning that just over half of the predicted "TV-14" ratings were correct. In contrast, the model struggles with classes that have low prevalence in the dataset, resulting in low sensitivity and precision for those classes.
+
+Overall, the model performs moderately well, particularly for certain classes like "TV-MA" which have higher sensitivity and balanced accuracy. However, the model's performance could be improved by addressing class imbalance, adding more features, tuning hyperparameters, and potentially using more complex ensemble methods. These steps could help achieve better classification accuracy and agreement between predicted and actual ratings.
+
+## Conclusion
+
+The results indicate that the country of origin significantly influences the distribution of age ratings assigned to Netflix titles, as shown by the high importance of the country variable in the random forest model. The substantial decrease in model accuracy and increase in node impurity when the country variable is excluded further supports this finding. While the type of content (Movie or TV Show) also affects the distribution of age ratings, its impact is less pronounced compared to the country of origin. Excluding the type variable results in a smaller decrease in model performance. Overall, both predictor variables—type and country—contribute to the prediction of age ratings, but the country of origin has a more dominant influence, highlighting that while both factors are important, the country's impact is stronger.
+
+
+{{< pagebreak >}}
+
 
 
 
 {{< pagebreak >}}
 
-# Discussion
+## References
 
-## Summary and Interpretation
+I did get some of my EDA inspiration from : [Link](https://www.kaggle.com/code/lp2595/netflix-movies-and-tv-shows-eda#WOW!-Mostly,-Contents-from-Japan-and-South-Korea-are-TV-Shows)
 
-*Summarize what you did, what you found and what it means.*
-
-## Strengths and Limitations
-
-*Discuss what you perceive as strengths and limitations of your analysis.*
-
-## Conclusions
-
-*What are the main take-home messages?*
-
-*Include citations in your Rmd file using bibtex, the list of references will automatically be placed at the end*
-
-This paper [@leek2015] discusses types of analyses.
-
-These papers [@mckay2020; @mckay2020a] are good examples of papers published using a fully reproducible setup similar to the one shown in this template.
-
-Note that this cited reference will show up at the end of the document, the reference formatting is determined by the CSL file specified in the YAML header.
-Many more style files for almost any journal [are available](https://www.zotero.org/styles).
-You also specify the location of your bibtex reference file in the YAML.
-You can call your reference file anything you like, I just used the generic word `references.bib` but giving it a more descriptive name is probably better.
-
-{{< pagebreak >}}
-
-# References
+Here's a video tutorial on how to say "Netflix and Chill" in 26 different languages:[Link](https://www.youtube.com/watch?app=desktop&v=btKF84-y8os)
