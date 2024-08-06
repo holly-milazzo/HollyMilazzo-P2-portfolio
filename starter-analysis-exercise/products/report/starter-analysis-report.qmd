@@ -546,7 +546,6 @@ varImpPlot(rf_model)
 ```
 
 
-
 ## Interpretation
 
 
