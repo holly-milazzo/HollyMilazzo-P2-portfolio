@@ -12,8 +12,8 @@ website:
         menu:
           - text: "Starter Analysis Exercise"
             file: starter-analysis-exercise/products/report/starter-analysis-report.qmd
-          - text: "R Coding Exercise"
-            file: coding-exercise/coding-exercise.qmd
+          - text: "DA6813_machine-learning-project"
+            file: DA6813_machine-learning-project/DA6813_machine-learning-project.qmd
           - text: "Presentation Exercise"
             file: presentation-exercise/presentation-exercise.qmd
           - text: "Tidy Tuesday Exercise"

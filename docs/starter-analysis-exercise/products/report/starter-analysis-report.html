@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Holly Milazzo">
-<meta name="dcterms.date" content="2024-08-06">
+<meta name="dcterms.date" content="2024-11-26">
 
 <title>Holly Milazzo Data Analysis Portfolio - Manuscript/Report Template for a Data Analysis Project</title>
 <style>
@@ -207,7 +207,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">August 6, 2024</p>
+      <p class="date">November 26, 2024</p>
     </div>
   </div>
   
@@ -958,10 +958,12 @@ UR          0     0        0  0   1.0000000</code></pre>
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> <span class="fu">predict</span>(rf_model, test_data)</span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="ot">&lt;-</span> <span class="fu">confusionMatrix</span>(predictions, test_data<span class="sc">$</span>rating)</span>
 <span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confusion_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(confusion_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
+<pre><code>$positive
+NULL
 
+$table
           Reference
 Prediction 66 min 74 min 84 min   A   G NC-17  NR  PG PG-13   R TV-14 TV-G
   66 min        0      0      0   0   0     0   0   0     0   0     0    0
@@ -1003,64 +1005,76 @@ Prediction TV-MA TV-PG TV-Y TV-Y7 TV-Y7-FV  UR
   TV-Y7-FV     0     0    0     0        0   0
   UR           0     0    0     0        0   0
 
-Overall Statistics
-                                          
-               Accuracy : 0.3762          
-                 95% CI : (0.3508, 0.4022)
-    No Information Rate : 0.3421          
-    P-Value [Acc &gt; NIR] : 0.003985        
-                                          
-                  Kappa : 0.0843          
-                                          
- Mcnemar's Test P-Value : NA              
+$overall
+      Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull 
+   0.376244666    0.084343129    0.350848019    0.402159713    0.342105263 
+AccuracyPValue  McnemarPValue 
+   0.003984687            NaN 
 
-Statistics by Class:
+$byClass
+                Sensitivity Specificity Pos Pred Value Neg Pred Value Precision
+Class: 66 min            NA   1.0000000             NA             NA        NA
+Class: 74 min            NA   1.0000000             NA             NA        NA
+Class: 84 min            NA   1.0000000             NA             NA        NA
+Class: A                 NA   1.0000000             NA             NA        NA
+Class: G          0.0000000   1.0000000            NaN      0.9950213        NA
+Class: NC-17             NA   1.0000000             NA             NA        NA
+Class: NR         0.0000000   1.0000000            NaN      0.9914651        NA
+Class: PG         0.0000000   1.0000000            NaN      0.9615932        NA
+Class: PG-13      0.0000000   1.0000000            NaN      0.9359886        NA
+Class: R          0.0000000   0.9881235      0.0000000      0.8971963 0.0000000
+Class: TV-14      0.4254658   0.8883764      0.5310078      0.8388502 0.5310078
+Class: TV-G       0.0000000   1.0000000            NaN      0.9751067        NA
+Class: TV-MA      0.8149688   0.1989189      0.3459841      0.6739927 0.3459841
+Class: TV-PG      0.0000000   1.0000000            NaN      0.8990043        NA
+Class: TV-Y       0.0000000   1.0000000            NaN      0.9601707        NA
+Class: TV-Y7      0.0000000   1.0000000            NaN      0.9551920        NA
+Class: TV-Y7-FV   0.0000000   1.0000000            NaN      0.9992888        NA
+Class: UR                NA   1.0000000             NA             NA        NA
+                   Recall        F1   Prevalence Detection Rate
+Class: 66 min          NA        NA 0.0000000000     0.00000000
+Class: 74 min          NA        NA 0.0000000000     0.00000000
+Class: 84 min          NA        NA 0.0000000000     0.00000000
+Class: A               NA        NA 0.0000000000     0.00000000
+Class: G        0.0000000        NA 0.0049786629     0.00000000
+Class: NC-17           NA        NA 0.0000000000     0.00000000
+Class: NR       0.0000000        NA 0.0085348506     0.00000000
+Class: PG       0.0000000        NA 0.0384068279     0.00000000
+Class: PG-13    0.0000000        NA 0.0640113798     0.00000000
+Class: R        0.0000000       NaN 0.1017069701     0.00000000
+Class: TV-14    0.4254658 0.4724138 0.2290184922     0.09743954
+Class: TV-G     0.0000000        NA 0.0248933144     0.00000000
+Class: TV-MA    0.8149688 0.4857497 0.3421052632     0.27880512
+Class: TV-PG    0.0000000        NA 0.1009957326     0.00000000
+Class: TV-Y     0.0000000        NA 0.0398293030     0.00000000
+Class: TV-Y7    0.0000000        NA 0.0448079659     0.00000000
+Class: TV-Y7-FV 0.0000000        NA 0.0007112376     0.00000000
+Class: UR              NA        NA 0.0000000000     0.00000000
+                Detection Prevalence Balanced Accuracy
+Class: 66 min             0.00000000                NA
+Class: 74 min             0.00000000                NA
+Class: 84 min             0.00000000                NA
+Class: A                  0.00000000                NA
+Class: G                  0.00000000         0.5000000
+Class: NC-17              0.00000000                NA
+Class: NR                 0.00000000         0.5000000
+Class: PG                 0.00000000         0.5000000
+Class: PG-13              0.00000000         0.5000000
+Class: R                  0.01066856         0.4940618
+Class: TV-14              0.18349929         0.6569211
+Class: TV-G               0.00000000         0.5000000
+Class: TV-MA              0.80583215         0.5069439
+Class: TV-PG              0.00000000         0.5000000
+Class: TV-Y               0.00000000         0.5000000
+Class: TV-Y7              0.00000000         0.5000000
+Class: TV-Y7-FV           0.00000000         0.5000000
+Class: UR                 0.00000000                NA
 
-                     Class: 66 min Class: 74 min Class: 84 min Class: A
-Sensitivity                     NA            NA            NA       NA
-Specificity                      1             1             1        1
-Pos Pred Value                  NA            NA            NA       NA
-Neg Pred Value                  NA            NA            NA       NA
-Prevalence                       0             0             0        0
-Detection Rate                   0             0             0        0
-Detection Prevalence             0             0             0        0
-Balanced Accuracy               NA            NA            NA       NA
-                     Class: G Class: NC-17 Class: NR Class: PG Class: PG-13
-Sensitivity          0.000000           NA  0.000000   0.00000      0.00000
-Specificity          1.000000            1  1.000000   1.00000      1.00000
-Pos Pred Value            NaN           NA       NaN       NaN          NaN
-Neg Pred Value       0.995021           NA  0.991465   0.96159      0.93599
-Prevalence           0.004979            0  0.008535   0.03841      0.06401
-Detection Rate       0.000000            0  0.000000   0.00000      0.00000
-Detection Prevalence 0.000000            0  0.000000   0.00000      0.00000
-Balanced Accuracy    0.500000           NA  0.500000   0.50000      0.50000
-                     Class: R Class: TV-14 Class: TV-G Class: TV-MA
-Sensitivity           0.00000      0.42547     0.00000       0.8150
-Specificity           0.98812      0.88838     1.00000       0.1989
-Pos Pred Value        0.00000      0.53101         NaN       0.3460
-Neg Pred Value        0.89720      0.83885     0.97511       0.6740
-Prevalence            0.10171      0.22902     0.02489       0.3421
-Detection Rate        0.00000      0.09744     0.00000       0.2788
-Detection Prevalence  0.01067      0.18350     0.00000       0.8058
-Balanced Accuracy     0.49406      0.65692     0.50000       0.5069
-                     Class: TV-PG Class: TV-Y Class: TV-Y7 Class: TV-Y7-FV
-Sensitivity                 0.000     0.00000      0.00000       0.0000000
-Specificity                 1.000     1.00000      1.00000       1.0000000
-Pos Pred Value                NaN         NaN          NaN             NaN
-Neg Pred Value              0.899     0.96017      0.95519       0.9992888
-Prevalence                  0.101     0.03983      0.04481       0.0007112
-Detection Rate              0.000     0.00000      0.00000       0.0000000
-Detection Prevalence        0.000     0.00000      0.00000       0.0000000
-Balanced Accuracy           0.500     0.50000      0.50000       0.5000000
-                     Class: UR
-Sensitivity                 NA
-Specificity                  1
-Pos Pred Value              NA
-Neg Pred Value              NA
-Prevalence                   0
-Detection Rate               0
-Detection Prevalence         0
-Balanced Accuracy           NA</code></pre>
+$mode
+[1] "sens_spec"
+
+$dots
+list()</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1081,20 +1095,19 @@ Balanced Accuracy           NA</code></pre>
 <h2 data-number="3.4" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">3.4</span> Conclusion</h2>
 <p>The results indicate that the country of origin significantly influences the distribution of age ratings assigned to Netflix titles, as shown by the high importance of the country variable in the random forest model. The substantial decrease in model accuracy and increase in node impurity when the country variable is excluded further supports this finding. While the type of content (Movie or TV Show) also affects the distribution of age ratings, its impact is less pronounced compared to the country of origin. Excluding the type variable results in a smaller decrease in model performance. Overall, both predictor variables—type and country—contribute to the prediction of age ratings, but the country of origin has a more dominant influence, highlighting that while both factors are important, the country’s impact is stronger.</p>
 <div style="page-break-after: always;"></div>
-<p><em>Include citations in your Rmd file using bibtex, the list of references will automatically be placed at the end</em></p>
-<p>I did get some of my EDA inspiration from : <a href="https://www.kaggle.com/code/lp2595/netflix-movies-and-tv-shows-eda#WOW!-Mostly,-Contents-from-Japan-and-South-Korea-are-TV-Shows">Link</a></p>
-<p>Here’s a video tutorial on how to say “Netflix and Chill” in 26 different languages:<a href="https://www.youtube.com/watch?app=desktop&amp;v=btKF84-y8os">Link</a></p>
 <div style="page-break-after: always;"></div>
 </section>
+<section id="references" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="references"><span class="header-section-number">3.5</span> References</h2>
+<p>I did get some of my EDA inspiration from : <a href="https://www.kaggle.com/code/lp2595/netflix-movies-and-tv-shows-eda#WOW!-Mostly,-Contents-from-Japan-and-South-Korea-are-TV-Shows">Link</a></p>
+<p>Here’s a video tutorial on how to say “Netflix and Chill” in 26 different languages:<a href="https://www.youtube.com/watch?app=desktop&amp;v=btKF84-y8os">Link</a></p>
+
+
+
 </section>
-<section id="references" class="level1" data-number="4">
-
-
-
-
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">4 References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
 <div id="ref-mckay2020" class="csl-entry" role="listitem">
 McKay, B., Ebell, M., Billings, W. Z., Dale, A. P., Shen, Y., &amp; Handel, A. (2020). Associations <span>Between Relative Viral Load</span> at <span>Diagnosis</span> and <span>Influenza A Symptoms</span> and <span>Recovery</span>. <em>Open Forum Infectious Diseases</em>, <em>7</em>(11), ofaa494. <a href="https://doi.org/10.1093/ofid/ofaa494">https://doi.org/10.1093/ofid/ofaa494</a>
 </div>

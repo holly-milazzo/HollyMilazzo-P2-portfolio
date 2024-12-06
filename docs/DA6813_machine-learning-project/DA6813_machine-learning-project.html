@@ -129,8 +129,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Starter Analysis Exercise</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../coding-exercise/coding-exercise.html" rel="" target="">
- <span class="dropdown-text">R Coding Exercise</span></a>
+    <a class="dropdown-item" href="../DA6813_machine-learning-project/DA6813_machine-learning-project.html" rel="" target="">
+ <span class="dropdown-text">DA6813_machine-learning-project</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../presentation-exercise/presentation-exercise.html" rel="" target="">
@@ -191,9 +191,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p>Project Proposal: Understanding Consumer Behavior for Bridgerton Estate Financial Using Online Interaction Data</p>
+<p>Project Proposal: What Factors Influence Whether Bridgerton Estate Financial Customers Complete a Product Application?</p>
 <p>Background Bridgerton Estate Financial is a one-of-a-kind banking institution that offers a range of financial products, including personal loans, credit cards, mortgages, and savings accounts. As a forward-thinking company, Bridgerton Estate Financial has invested heavily in its digital channels to engage with customers online, through mobile applications, and via web portals. Customers can explore products, ask questions, and complete applications directly through these platforms. To optimize the customer journey, Bridgerton Estate Financial tracks key digital events from their customers’ online behaviors. These events include interactions like product page visits, application starts, and completions or abandonments of forms. Our goal is to analyze this event tracking data to better understand consumer behavior and determine which factors drive customers to complete an application for a financial product or abandon the process.</p>
-<p>Motivation As a data-driven organization, Bridgerton Estate Financial wants to enhance its understanding of consumer behavior on digital platforms to: • Improve Conversion Rates: Identify the key factors that lead to successful application completions and reduce application drop-offs. • Enhance the Customer Experience: Pinpoint areas of friction in the application process and improve the user interface to streamline the experience. • Optimize Marketing and Customer Engagement: Gain insights into when and how to engage customers more effectively, such as understanding peak interaction times or preferred devices. By leveraging data from customer interactions, the goal is to answer critical questions about the online behavior of Bridgerton Estate Financial’s customers, which would enable the company to make more informed decisions and improve customer conversion rates.</p>
+<p>Motivation As a data-driven organization, Bridgerton Estate Financial wants to enhance its understanding of consumer behavior on digital platforms to: • Improve Conversion Rates: Identify the key factors that lead to successful application completions and reduce application drop-offs. • Enhance the Customer Experience: Pinpoint areas of friction in the application process and improve the user interface to streamline the experience. • Optimize Marketing and Customer Engagement: Gain insights into when and how to engage customers more effectively, such as understanding peak interaction times or preferred devices. By leveraging data from customer interactions, the goal is to answer critical questions about the online behavior of Bridgerton Estate Financial’s customers which would enable the company to make more informed decisions and improve customer conversion rates.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(readr, here, dplyr, lubridate, corrplot, caret, ggplot2, car, e1071, vcd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -312,7 +312,7 @@ COMMUNICATION_EVENT_ATTRIBUTES        CORE_EVENT_SUBTYPE_2_NM
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="coding-exercise_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="DA6813_machine-learning-project_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>#FEATURE ENGINEERING #Principal Component Analysis (PCA) SECTION for reducing and simplifying</p>
@@ -356,7 +356,7 @@ Cumulative Proportion  0.4398 0.6931 0.9404 1.00000</code></pre>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Scree Plot on Cumulative Variance"</span>)</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fl">0.95</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>) <span class="co"># shows the 95% threshold</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="coding-exercise_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+<p><img src="DA6813_machine-learning-project_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>I would like to retain these 3 components moving forward because one of the benefits of doing this would be that the PCA components are uncorrelated (orthogonal), which should resolve any multicollinearity issues. Unfortunately, the downside would be that by transforming these original variables they would no longer be interpretable. While a logistic/SVM model might benefit from this, I don’t think I’ll need such a transformation anyway when using random forest down the line.</p>

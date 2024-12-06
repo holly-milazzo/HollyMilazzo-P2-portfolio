@@ -1,0 +1,357 @@
+---
+title: "DA6813 - Machine Learning Project"
+author: "Holly Milazzo - LNJ140"
+format: html
+---
+
+Project Proposal: What Factors Influence Whether Bridgerton Estate Financial Customers Complete a Product Application?
+
+
+Background
+Bridgerton Estate Financial is a one-of-a-kind banking institution that offers a range of financial products, including personal loans, credit cards, mortgages, and savings accounts. As a forward-thinking company, Bridgerton Estate Financial has invested heavily in its digital channels to engage with customers online, through mobile applications, and via web portals. Customers can explore products, ask questions, and complete applications directly through these platforms.
+To optimize the customer journey, Bridgerton Estate Financial tracks key digital events from their customers’ online behaviors. These events include interactions like product page visits, application starts, and completions or abandonments of forms. Our goal is to analyze this event tracking data to better understand consumer behavior and determine which factors
+drive customers to complete an application for a financial product or abandon the process.
+
+
+Motivation
+As a data-driven organization, Bridgerton Estate Financial wants to enhance its understanding of consumer behavior on digital platforms to:
+•	Improve Conversion Rates: Identify the key factors that lead to successful application completions and reduce application drop-offs.
+•	Enhance the Customer Experience: Pinpoint areas of friction in the application process and improve the user interface to streamline the experience.
+•	Optimize Marketing and Customer Engagement: Gain insights into when and how to engage customers more effectively, such as understanding peak interaction times or preferred devices.
+By leveraging data from customer interactions, the goal is to answer critical questions about the online behavior of Bridgerton Estate Financial’s customers which would enable the company to make more informed decisions and improve customer conversion rates.
+
+```{r}
+pacman::p_load(readr, here, dplyr, lubridate, corrplot, caret, ggplot2, car, e1071, vcd)
+```
+
+
+```{r}
+data_location <- here::here("data-exercise","Synthetic_Event_Data.csv")
+rawdata <- read_csv(data_location, show_col_types = FALSE)
+```
+
+
+```{r}
+str(rawdata)
+```
+
+I will need to convert EVENT_DT to a date type and POST_EVENT to a factor as this is my target variable. I also think there will be some use in know specific day of the week and hour for consumer's digital activity so I'm going to break this out into their own variables. To do the 'HOUR' parsing I will need the package 'Lubridate'
+
+```{r}
+rawdata <- rawdata %>%
+  mutate(
+    # Converting EVENT_DT to a Date format
+    EVENT_DT = as.Date(EVENT_DT, format = "%m/%d/%Y"), #redundant because it's only 1 day of data
+    
+    # Properly encoding POST_EVENT as a binary numeric variable (0 for "App Not Complete", 1 for "App Complete")
+    POST_EVENT = ifelse(POST_EVENT == "App Complete", 1, 0),
+    
+    # Extracting the day of the week from EVENT_DT --for possible future use if I get more observations
+    #DAY_OF_WEEK = weekdays(EVENT_DT),
+    
+    # Extracting the hour of interaction from EVENT_EFFECTIVE_GMT_TS
+    HOUR = hour(EVENT_EFFECTIVE_GMT_TS),
+    
+    # Creating an interaction term between HOUR and SOURCE_CHANNEL_CD
+    HOUR_CHANNEL_INTERACTION = HOUR * as.numeric(as.factor(SOURCE_CHANNEL_CD))
+  ) %>%
+  mutate_if(is.character, as.factor) # Converting all character variables to factors
+
+```
+
+Now to inspect data for missing values
+
+```{r}
+colSums(is.na(rawdata))
+```
+Checking to see how balanced my response variable is
+
+```{r}
+post_event_balance <- rawdata %>%
+  count(POST_EVENT) %>%
+  mutate(Proportion = n / sum(n))
+
+ggplot(post_event_balance, aes(x = POST_EVENT, y = Proportion, fill = POST_EVENT)) +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_text(aes(label = paste0(round(Proportion * 100, 1), "%")), 
+            position = position_stack(vjust = 0.5), 
+            color = "white", 
+            size = 5) +
+  labs(title = "Distribution of Response (POST_EVENT): App Complete v App Not Complete",
+       x = "POST_EVENT",
+       y = "Proportion") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+#FEATURE ENGINEERING
+#Principal Component Analysis (PCA) SECTION for reducing and simplifying
+
+```{r}
+single_level_cols <- names(Filter(function(x) length(unique(x)) == 1, rawdata))
+
+single_level_cols
+```
+remove variable with only one level, EVENT_DT only had one day anyway
+
+```{r}
+# Removing Event_DT
+rawdata <- rawdata[, !(names(rawdata) %in% single_level_cols)]
+```
+
+```{r}
+# Subsetting the numeric variables in prep for PCA
+numeric_data <- rawdata %>% select_if(is.numeric)
+
+scaled_numeric_data <- scale(numeric_data)
+```
+
+
+```{r}
+# Running PCA
+pca_result <- prcomp(scaled_numeric_data, scale. = TRUE)
+
+summary(pca_result)
+```
+Interpretation: PC1 has the highest standard deviation, meaning it captures the most variance, it explains 43.98% of the variance alone so combining it with PC2 and PCA3 explainS 94.04% of the variance. Running the Scree plot below confirms this, I only need to retain 3.
+
+
+```{r}
+cumulative_variance <- cumsum(pca_result$sdev^2 / sum(pca_result$sdev^2))
+plot(cumulative_variance, type = "b", xlab = "Number of Components", 
+     ylab = "Cumulative Variance Explained", 
+     main = "Scree Plot on Cumulative Variance")
+abline(h = 0.95, col = "red", lty = 2) # shows the 95% threshold
+```
+I would like to retain these 3 components moving forward because one of the benefits of doing this would be that the PCA components are uncorrelated (orthogonal), which should resolve any multicollinearity issues. Unfortunately, the downside would be that by transforming these original variables they would no longer be interpretable. While a logistic/SVM model might benefit from this, I don't think I'll need such a transformation anyway when using random forest down the line.
+
+
+#Checking collinearity in numerical variables
+
+Running VIF
+
+```{r}
+vif_model <- lm(POST_EVENT ~ ., data = numeric_data)
+vif_values <- vif(vif_model)
+print(vif_values)
+
+```
+
+The VIF results indicate that all the variables have very low VIF values, with none exceeding the commonly accepted thresholds for multicollinearity (e.g., 5 for moderate multicollinearity or 10 for high multicollinearity). This means that multicollinearity for the numeric values is not a concern in my dataset and can idealy remain in the model.
+
+#Checking collinearity in Categorical variables
+
+```{r}
+categorical_columns <- rawdata %>% select_if(is.factor)
+
+# Running pairwise Chi-Square + Cramer's V to cross-check all highly associated variable pairings
+pairwise_cramers_v <- combn(names(categorical_columns), 2, function(cols) {
+  var1 <- categorical_columns[[cols[1]]]
+  var2 <- categorical_columns[[cols[2]]]
+  cramer_val <- assocstats(table(var1, var2))$cramer
+  data.frame(Var1 = cols[1], Var2 = cols[2], CramersV = cramer_val)
+}, simplify = FALSE) %>% bind_rows()
+
+high_association <- pairwise_cramers_v %>% filter(CramersV > 0.7) # Threshold for strong association
+print(high_association)
+```
+
+Interpretation of results: The results of the Cramer's V test indicate a perfect associations (Cramer's V = 1) between SOURCE_EVENT_ID and over half of the other categorical variables. This means that SOURCE_EVENT_ID is highly predictive of these variables or vice versa, suggesting redundancy. I'm going to remove this variable from my dataset moving forward. Dropping EVENT_EFFECTIVE_GMT_TS variable as we have already created an 'Hour' variable out of it and don't want to use both.
+
+```{r}
+rawdata <- rawdata %>% select(-SOURCE_EVENT_ID) # Dropping SOURCE_EVENT_ID from dataset
+
+```
+
+Double checking my data set to see if everything is ready for modeling
+
+```{r}
+str(rawdata)
+```
+
+
+#BEGIN MODELING SECTION**********************************************************
+
+If I'm going to try models like SVM and Logistic Regression I may need to scale my data - (is this step needed?)
+
+```{r}
+rawdata_scaled <- rawdata %>%
+  mutate(across(where(is.numeric) & !all_of("POST_EVENT"), scale))
+
+```
+
+
+#SPLIT TRAIN/TEST
+
+```{r}
+set.seed(321)
+
+train_indices <- createDataPartition(rawdata_scaled$POST_EVENT, p = 0.8, list = FALSE)
+train_data <- rawdata_scaled[train_indices, ]
+test_data <- rawdata_scaled[-train_indices, ]
+
+```
+
+
+#Logistic Regression (using PCA components dataset)
+
+```{r}
+numeric_data <- rawdata %>% select_if(is.numeric)
+scaled_numeric_data <- scale(numeric_data)
+pca_result <- prcomp(scaled_numeric_data, scale. = TRUE)
+pca_transformed <- as.data.frame(predict(pca_result, newdata = scaled_numeric_data)[, 1:3]) # Using only top 3 components
+
+rawdata_pca <- cbind(POST_EVENT = rawdata$POST_EVENT, pca_transformed)
+
+```
+
+```{r}
+logistic_model <- glm(POST_EVENT ~ ., data = rawdata_pca[train_indices, ], family = binomial)
+summary(logistic_model)
+```
+Results Logistic Model 1: model shit the bed - Write something here about using PCA components not being a working method for this
+
+
+#Logistic Regression (using rawdata set)
+
+```{r}
+set.seed(321)
+train_indices <- createDataPartition(rawdata$POST_EVENT, p = 0.8, list = FALSE)
+train_data <- rawdata[train_indices, ]
+test_data <- rawdata[-train_indices, ]
+
+
+logistic_model2 <- glm(POST_EVENT ~ ., data = train_data, family = binomial)
+
+summary(logistic_model2)
+
+```
+
+Results Logistic Model 2: There appears to be a lot of variables with no significance, let's apply some stepwise/backward elimination to our model
+
+```{r}
+logistic_model3 <- step(logistic_model2, direction = "backward")
+summary(logistic_model3)
+
+```
+
+
+Results Logistic Model 3:The backward elimination process significantly simplified the model leaving only two predictors: HOUR and HOUR_CHANNEL_INTERACTION
+
+Model strength: 
+Predictors are statistically significant, providing meaningful insights into how time-related factors influence application completion
+Both predictors are statistically significant (𝑝<0.05 p<0.05):
+HOUR:𝑝=0.0472
+HOUR_CHANNEL_INTERACTION:𝑝=0.0486
+Model Weakness: The model does not explain much variability for the target variable and only has two predictors and lacks any complexity for achieving any real accuracy
+
+```{r}
+logistic_pred3 <- predict(logistic_model3, newdata = test_data, type = "response")
+logistic_class3 <- ifelse(logistic_pred3 > 0.5, 1, 0)
+```
+
+
+```{r}
+confusionMatrix(as.factor(logistic_class3), as.factor(test_data$POST_EVENT))
+```
+Running this model on the test data and seeing the results in the confusion matrix confirms the logistic regression model achieved an accuracy of 56.5%, which is only slightly better than chance. The model performed well in identifying non-application completers (Class 0), with a sensitivity of 72.8%, but struggled to detect application completers (Class 1), with a specificity of only 39.2%. The positive predictive value (PPV) for non-completers was moderate at 55.97%, while the negative predictive value (NPV) for completers was slightly higher at 57.58%, indicating weakness in predicting the positive class accurately. 
+
+The Kappa score of 0.121 suggests minimal agreement between predicted and actual classes beyond chance, and a balanced accuracy of 56.0% reflects mediocre performance across both classes. 
+
+#SVM (support vector machine) model
+
+```{r}
+set.seed(321)
+
+svmfit1 <- svm(POST_EVENT ~ ., 
+               data = train_data, 
+               type = "C-classification", 
+               kernel = "radial",
+               cost = 1,   # Cost parameter, can adjust for tuning
+               scale = TRUE # Scales data to zero mean and unit variance
+)
+
+
+summary(svmfit1)
+```
+running on test data and reviewing performance
+
+```{r}
+test_data$POST_EVENT <- as.factor(test_data$POST_EVENT)
+
+svm_pred <- factor(predict(svmfit1, newdata = test_data), levels = levels(test_data$POST_EVENT))
+```
+
+```{r}
+svm_cm <- confusionMatrix(svm_pred, test_data$POST_EVENT)
+print(svm_cm)
+```
+
+Results SVM Model 1:
+The SVM model achieved an accuracy of 52.5%, which is only slightly better than random guessing. It showed moderate sensitivity (58.25%) in identifying non-application completers (Class 0) and struggled with specificity (46.39%) which indicates difficulty in detecting application completers (Class 1). The 53.57% shows that the model has limited precision for predicting non-application completers, while the negative predictive value (51.14%) further shows its weak ability to predict application completions. A Kappa score of 0.0466 suggests minimal agreement between predicted and actual classes beyond chance, and the balanced accuracy of 52.32% reflects poor performance for both classes.
+
+Overall, this model has limited predictive power and may be in need for hyperparameter tuning or exploration of alternative approaches such as Random Forest.
+
+Let's first trying tuning the SVM model to see if we can improve the performance...
+
+```{r}
+tune_svm <- tune(
+  svm, 
+  POST_EVENT ~ ., 
+  data = train_data, 
+  kernel = "radial", 
+  ranges = list(
+    cost = c(0.1, 1, 10, 100),  
+    gamma = c(0.01, 0.1, 1)     
+  )
+)
+
+print(tune_svm)
+
+
+```
+
+```{r}
+svmfit2 <- svm(
+  POST_EVENT ~ ., 
+  data = train_data, 
+  type = "C-classification", 
+  kernel = "radial", 
+  cost = 10, 
+  gamma = 1, 
+  scale = TRUE
+)
+
+svmfit2_pred <- predict(svmfit2, newdata = test_data, type = "class")
+
+test_data$POST_EVENT <- as.factor(test_data$POST_EVENT)
+svmfit2_pred <- as.factor(svmfit2_pred)
+
+```
+
+
+```{r}
+svmfit2_cm <- confusionMatrix(svmfit2_pred, test_data$POST_EVENT)
+print(svmfit2_cm)
+```
+Results SVM Model 2: look way over-correcting for penalization
+
+
+#Ensemble method: Random Forest
+
+```{r}
+# Random Forest on original data
+#rf_model <- randomForest(POST_EVENT ~ ., data = train_data, ntree = 500, mtry = 3, importance = TRUE)
+#print(rf_model)
+```
+
+
+
+
+
+
+
+
+
+
